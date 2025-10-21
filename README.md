@@ -1,3 +1,3 @@
 # COSC310-Project
 
-IMDB Movie Review App - RottenEggs
+IMDB Movie Review - RottenEggs
