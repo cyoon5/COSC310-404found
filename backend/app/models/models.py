@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 import datetime
 
 
@@ -7,7 +8,7 @@ class Movie(BaseModel):
     title: str
     category: str
     releaseDate: datetime
-    averageRating: float
+    averageRating: float = 0.0
 
 class Review(BaseModel):
     reviewId: int
@@ -16,12 +17,12 @@ class Review(BaseModel):
     header: str
     body: str
     date: datetime
-    reportCount: int
+    reportCount: int = 0
 
 class Watchlist(BaseModel):
     watchlistId: int
     userId: int
-    movies: List[Movie]
+    movies: List[int] #Store movie id instead of full movie obj more efficient
 
 class Report(BaseModel):
     status: str
