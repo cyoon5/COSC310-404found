@@ -1,9 +1,4 @@
 from pydantic import BaseModel
-from typing import List
-import datetime
-
-
-from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date
 
@@ -29,7 +24,7 @@ class Review(BaseModel):
     movieId: int
     header: str
     body: str
-    date: datetime
+    date: date
     reportCount: int = 0
 
 class Watchlist(BaseModel):

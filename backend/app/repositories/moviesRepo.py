@@ -1,8 +1,8 @@
 import json,os
 from pathlib import Path
 from typing import List, Dict, Any
-from app.models.models import Movie
-
+from ..models.models import Movie
+from pydantic import BaseModel
 
 
 
@@ -32,8 +32,8 @@ def save_movies(movie: Movie):
 
         metaPath = movieFolder / "metadata.json"
         with metaPath.open("w", encoding = "utf-8") as m:
-            #model_dump converts Pydantic model to JSON/Dict
-            json.dump(movie.model_dump(), m, ensure_ascii=False, indent=2)
+            #model_dump converts Pydantic model to JSON/Dict, write the JSON strong into 
+            m.write(movie.model_dump_json(indent=2))
         
         csvPath = movieFolder / "movieReviews.csv"
 
