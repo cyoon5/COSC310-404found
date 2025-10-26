@@ -8,8 +8,8 @@ from pydantic import BaseModel
 
 DATA_PATH = Path(__file__).resolve().parents[3] /"data"/"imdb"
 
-def load_movies() ->  List[Movie]:
-    movies = []
+def load_all_movies() ->  List[Movie]:
+    movies = []#Honestly probably easier if we just used a dictionary so we dont need to unpack but w/e
     for movieFolders in DATA_PATH.iterdir():
         if movieFolders.is_dir():
             #collectMovies points to that folder and to the metadata for all movies

@@ -45,6 +45,7 @@ class User(BaseModel):
     userId: int
     userName: str
     password: str
+    watchlist : Optional[Watchlist] = None
 
 class Admin(BaseModel):
     adminId: int
