@@ -15,10 +15,17 @@ def load_users() -> List[Dict[str,any]]:
        return json.load(f)
 
 
-def save_users(users: List[Dict[str, Any]]):
+def save_users(users: List[Dict[str, any]]):
    tmp = DATA_PATH.with_suffix(".tmp")
    with tmp.open("w", encoding = "utf-8") as f:
       json.dump(users, f, ensure_ascii=False, indent=2)
    os.replace(tmp, DATA_PATH)
+
+
+def add_user(new_user: Dict[str, any]): #To add a single user, not a list
+    users = load_users()   #Gets current users
+    users.append(new_user)     #Appends the new user to it
+    save_users(users)          #Overides current user.json with additional user
+
 
    

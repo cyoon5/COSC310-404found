@@ -1,6 +1,6 @@
 from pathlib import Path
 from backend.app.models.models import Movie
-from backend.app.repositories.moviesRepo import save_movies, load_movies, DATA_PATH
+from backend.app.repositories.moviesRepo import save_movies, load_all_movies, DATA_PATH
 
 
 
@@ -23,6 +23,6 @@ movieTest = Movie(
 save_movies(movieTest)
 
 
-print(load_movies())
+print(load_all_movies())
 
 
