@@ -3,12 +3,25 @@ from typing import List
 import datetime
 
 
-class Movie(BaseModel):
-    movieId: int
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import date
+
+class Movie(BaseModel): #Field can be emtpty due to Optional keyword
     title: str
-    category: str
-    releaseDate: datetime
-    averageRating: float = 0.0
+    movieIMDbRating: Optional[float] = None
+    totalRatingCount: Optional[int] = None
+    totalUserReviews: Optional[str] = None
+    totalCriticReviews: Optional[str] = None
+    metaScore: Optional[str] = None
+    movieGenres: Optional[List[str]] = None
+    directors: Optional[List[str]] = None
+    datePublished: Optional[date] = None
+    creators: Optional[List[str]] = None
+    mainStars: Optional[List[str]] = None
+    description: Optional[str] = None
+    duration: Optional[int] = None
+
 
 class Review(BaseModel):
     reviewId: int

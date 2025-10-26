@@ -6,23 +6,45 @@ from app.models.models import Movie
 
 
 
-DATA_PATH = Path(__file__).resolve().parents[3] /"data"
+DATA_PATH = Path(__file__).resolve().parents[3] /"data"/"imdb"
 
 def load_movies() ->  List[Movie]:
     movies = []
-    for movieFolders in DATA_PATH.iteradir():
+    for movieFolders in DATA_PATH.iterdir():
         if movieFolders.is_dir():
             #collectMovies points to that folder and to the metadata for all movies
             collectMovies = movieFolders / "metadata.json" 
-            with collectMovies.open("r", encoding="utf-8") as f:
+            try:
+             with collectMovies.open("r", encoding="utf-8") as f:
                 movie_info = json.load(f) #deserialize into movies as objects
                 unpackDict = Movie(**movie_info) #unpackage Dictionary, match movie Class
                 movies.append(unpackDict) #append so it doesnt override
+            except FileNotFoundError:
+                print("File not found")
+                
     return movies
 
 
 def save_movies(movie: Movie):
-    pass #do later
+    try:
+        movieFolder = DATA_PATH / movie.title
+        movieFolder.mkdir()
+
+        metaPath = movieFolder / "metadata.json"
+        with metaPath.open("w", encoding = "utf-8") as m:
+            #model_dump converts Pydantic model to JSON/Dict
+            json.dump(movie.model_dump(), m, ensure_ascii=False, indent=2)
+        
+        csvPath = movieFolder / "movieReviews.csv"
+
+        if not csvPath.exists():
+            csvPath.write_text("Date of Review,User,Usefulness Vote,Total Votes,User's Rating out of 10,Review Title,Review\n",
+            encoding="utf-8")
+
+    except FileExistsError:
+        print("Folder exists already")
+
+
             
 
 
