@@ -20,12 +20,16 @@ class Movie(BaseModel): #Field can be emtpty due to Optional keyword
 
 class Review(BaseModel):
     reviewId: int
-    userId: int
     movieId: int
-    header: str
-    body: str
-    date: date
-    reportCount: int = 0
+    user: str                          
+    date: date                         
+    rating: Optional[float] = None    #out of 10
+    usefulVotes: Optional[int] = None 
+    totalVotes: Optional[int] = None  
+    title: str                        
+    body: str                          
+    reportCount: int = 0               
+
 
 class Watchlist(BaseModel):
     watchlistId: int
