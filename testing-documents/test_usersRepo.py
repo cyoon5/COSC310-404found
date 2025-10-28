@@ -1,18 +1,18 @@
 from backend.app.repositories.usersRepo import save_users, load_users, add_user
-new_user = { #New dict
-    "userId": 1,
+new_user = { #dictionary
     "userName": "TestUser1",
     "password": "password123",
-    "watchlist": {"watchlistId": 1, "movies": []},
+    "role": "user",
+    "watchlist": ["Avengers", "idk"],  
 }
 
-
-new_user1 = { #New dict
-    "userId": 2,
+new_user1 = {
     "userName": "TestUser2",
     "password": "password321",
-    "watchlist": {"watchlistId": 2, "movies": []},
+    "role": "user",
+    "watchlist": [],
 }
+
 
 save_users([new_user]) #List[Dict] format
 

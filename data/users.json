@@ -1,20 +1,17 @@
 [
   {
-    "userId": 1,
     "userName": "TestUser1",
     "password": "password123",
-    "watchlist": {
-      "watchlistId": 1,
-      "movies": []
-    }
+    "role": "user",
+    "watchlist": [
+      "Avengers",
+      "idk"
+    ]
   },
   {
-    "userId": 2,
     "userName": "TestUser2",
     "password": "password321",
-    "watchlist": {
-      "watchlistId": 2,
-      "movies": []
-    }
+    "role": "user",
+    "watchlist": []
   }
 ]

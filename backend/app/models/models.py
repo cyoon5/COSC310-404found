@@ -19,8 +19,7 @@ class Movie(BaseModel): #Field can be emtpty due to Optional keyword
 
 
 class Review(BaseModel):
-    reviewId: int
-    movieId: int
+    movieTitle: str
     user: str                          
     date: date                         
     rating: Optional[float] = None    #out of 10
@@ -31,27 +30,18 @@ class Review(BaseModel):
     reportCount: int = 0               
 
 
-class Watchlist(BaseModel):
-    watchlistId: int
-    userId: int
-    movies: List[int] #Store movie id instead of full movie obj more efficient
-
 class Report(BaseModel):
     status: str
     review: Review
 
-class Rating(BaseModel):
-    rating: int
-    movieId: int
-    userId: int
 
 class User(BaseModel):
-    userId: int
     userName: str
     password: str
-    watchlist : Optional[Watchlist] = None
+    role: str ="user"
+    watchlist: List[str] = []  # list of movie title
 
 class Admin(BaseModel):
-    adminId: int
-    userName: str
+    adminName: str
     password: str
+    role: str ="admin"

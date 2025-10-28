@@ -38,17 +38,10 @@ def save_movies(movie: Movie):
         csvPath = movieFolder / "movieReviews.csv"
 
         if not csvPath.exists():
-            csvPath.write_text("Date of Review,User,Usefulness Vote,Total Votes,User's Rating out of 10,Review Title,Review\n",
+            csvPath.write_text("Movie Title,Date of Review,User,Usefulness Vote,Total Votes,User's Rating out of 10,Review Title,Review, Reports\n",
             encoding="utf-8")
 
     except FileExistsError:
         print("Folder exists already")
 
 
-            
-
-
-    
-
-
-             
