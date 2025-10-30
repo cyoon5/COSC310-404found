@@ -1,6 +1,6 @@
 from pathlib import Path
 from backend.app.models.models import Review
-from backend.app.repositories.reviewsRepo import save_review, load_reviews, update_review
+from backend.app.repositories.reviewsRepo import save_review, load_all_reviews, update_review, delete_review
 from datetime import date
 from typing import List,Dict,Any
 
@@ -33,8 +33,11 @@ rev2 = Review(
 update_review(
     "TestMovie1", 
     "testuser2", 
-    {"User's Rating out of 10": "5"}
+    {"Review Title": "amazing movie"}
 )
+
+
+delete_review("TestMovie1", "testuser1")
 
 # save_review("TestMovie1",rev)
 # save_review("TestMovie1",rev2)
