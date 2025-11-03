@@ -22,7 +22,7 @@ movieTest = Movie(
 
 
 
-update_movies("TestMovie1", {"directors": "NEW DIRECTOR A"})
+update_movies("TestMovie1", {"directors": ["NEW DIRECTOR A"]})
 
 
 

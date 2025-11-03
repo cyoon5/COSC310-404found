@@ -8,7 +8,9 @@
   "movieGenres": [
     "Action"
   ],
-  "directors": "NEW DIRECTOR A",
+  "directors": [
+    "NEW DIRECTOR A"
+  ],
   "datePublished": "2023-01-01",
   "creators": [
     "Creator X"
