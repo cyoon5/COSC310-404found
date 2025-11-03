@@ -29,10 +29,13 @@ class Review(BaseModel):
     body: str                          
     reportCount: int = 0               
 
-
 class Report(BaseModel):
-    status: str
-    review: Review
+    review: Review  
+    status: str = "pending"
+    dateReported: date
+    reason: Optional[str] = None 
+
+
 
 
 class User(BaseModel):
