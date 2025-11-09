@@ -36,8 +36,6 @@ class Report(BaseModel):
     reason: Optional[str] = None 
 
 
-
-
 class User(BaseModel):
     userName: str
     password: str
