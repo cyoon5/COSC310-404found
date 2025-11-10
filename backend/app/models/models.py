@@ -1,43 +1,49 @@
 from pydantic import BaseModel
-import datetime
+from typing import List, Optional
+from datetime import date
 
-
-class Movie(BaseModel):
-    movieId: int
+class Movie(BaseModel): #Field can be emtpty due to Optional keyword
     title: str
-    category: str
-    releaseDate: datetime
-    averageRating: float
+    movieIMDbRating: Optional[float] = None
+    totalRatingCount: Optional[int] = None
+    totalUserReviews: Optional[str] = None
+    totalCriticReviews: Optional[str] = None
+    metaScore: Optional[str] = None
+    movieGenres: Optional[List[str]] = None
+    directors: Optional[List[str]] = None
+    datePublished: Optional[date] = None
+    creators: Optional[List[str]] = None
+    mainStars: Optional[List[str]] = None
+    description: Optional[str] = None
+    duration: Optional[int] = None
+
 
 class Review(BaseModel):
-    reviewId: int
-    userId: int
-    movieId: int
-    header: str
-    body: str
-    date: datetime
-    reportCount: int
-
-class Watchlist(BaseModel):
-    watchlistId: int
-    userId: int
-    movies: List[Movie]
+    movieTitle: str
+    user: str                          
+    date: date                         
+    rating: Optional[float] = None    #out of 10
+    usefulVotes: Optional[int] = None 
+    totalVotes: Optional[int] = None  
+    title: str                        
+    body: str                          
+    reportCount: int = 0               
 
 class Report(BaseModel):
-    status: str
-    review: Review
+    review: Review  
+    status: str = "pending"
+    dateReported: date
+    reason: Optional[str] = None 
 
-class Rating(BaseModel):
-    rating: int
-    movieId: int
-    userId: int
 
 class User(BaseModel):
-    userId: int
     userName: str
     password: str
+    role: str ="user"
+    penalties: int = 0
+    watchlist: List[str] = []  # list of movie title
 
 class Admin(BaseModel):
-    adminId: int
-    userName: str
+    adminName: str
     password: str
+    role: str ="admin"

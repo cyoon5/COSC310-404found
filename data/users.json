@@ -1,0 +1,17 @@
+[
+  {
+    "userName": "TestUser1",
+    "password": "password123",
+    "role": "user",
+    "watchlist": [
+      "Avengers",
+      "idk"
+    ]
+  },
+  {
+    "userName": "TestUser2",
+    "password": "password321",
+    "role": "user",
+    "watchlist": []
+  }
+]
