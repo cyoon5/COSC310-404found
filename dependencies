@@ -1,3 +1,0 @@
-pip install pydantic
-pip install fastapi
-pip install pytest

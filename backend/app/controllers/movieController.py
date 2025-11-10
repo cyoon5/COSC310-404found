@@ -29,3 +29,36 @@ def search_movies(title: str = Query(..., description="Keyword to search in movi
     #Handle invalid input (empty keyword)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+
+    
+@router.get("/filter-by-rating-min", response_model=List[Movie])
+#... Signifies that the parameter is required by the user
+def filter_by_rating(min_rating: float = Query(..., ge=0.0, le=10.0, description="Minimum IMDb rating")):
+    """
+    Returns all movies with a rating equal to or greater than the given value.
+    Example: /movies/filter-by-rating?min_rating=8.0
+    """
+    try:
+        filtered_movies = movie_service.filter_rating_min(min_rating)
+        if not filtered_movies:
+            raise HTTPException(status_code=404, detail="No movies found above that rating")
+        return filtered_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    
+@router.get("/filter-by-rating-max", response_model=List[Movie])
+def filter_by_rating(max_rating: float = Query(..., ge=0.0, le=10.0, description="Maximum IMDb rating")):
+    """
+    Returns all movies with a rating equal to or less than the given value.
+    Example: /movies/filter-by-rating-max?max_rating=8.0
+    """
+    try:
+        filtered_movies = movie_service.filter_rating_max(max_rating)
+        if not filtered_movies:
+            raise HTTPException(status_code=404, detail="No movies found below that rating")
+        return filtered_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+

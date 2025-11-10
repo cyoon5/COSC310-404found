@@ -19,5 +19,23 @@ class MovieService:
                 filtered_movies.append(movies)
         return filtered_movies
     
+    def filter_rating_min(self, min_rating: float) -> List[Movie]:
+        all_movies = load_all_movies()
+        filtered_movies = []
+        for movies in all_movies: 
+            if movies.movieIMDbRating >= min_rating:
+                filtered_movies.append(movies)
+        return filtered_movies
+    
+        
+    def filter_rating_max(self, max_rating: float) -> List[Movie]:
+        all_movies = load_all_movies()
+        filtered_movies = []
+        for movies in all_movies: 
+            if movies.movieIMDbRating <= max_rating:
+                filtered_movies.append(movies)
+        return filtered_movies
+    
+    
 
 
