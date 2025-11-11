@@ -1,0 +1,60 @@
+name: CI - Tests and Coverage
+
+on:
+  push:
+    branches: [ main, feature/*, "*" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run tests and produce coverage reports
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run tests with coverage
+        run: |
+          # produce junit xml, coverage xml and html report
+          pytest --junitxml=reports/junit.xml --cov=backend --cov-report=xml:reports/coverage.xml --cov-report=html:reports/htmlcov -q
+
+      - name: Save coverage summary
+        run: |
+          python - << 'PY'
+from xml.etree import ElementTree as ET
+try:
+    tree = ET.parse('reports/coverage.xml')
+    root = tree.getroot()
+    # simple summary write
+    with open('reports/coverage-summary.txt','w',encoding='utf-8') as f:
+        for child in root:
+            f.write(ET.tostring(child,encoding='unicode'))
+except Exception as e:
+    open('reports/coverage-summary.txt','w').write('coverage xml not found or parse error: %s' % e)
+PY
+
+      - name: Upload test reports as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: reports
+
+      - name: Upload coverage HTML as artifact (separate)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: reports/htmlcov
