@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List
 from ..models.models import Movie
+from datetime import datetime
 from ..services.movieService import MovieService
 
 #create a router instance for movie endpoints
@@ -62,3 +63,61 @@ def filter_by_rating(max_rating: float = Query(..., ge=0.0, le=10.0, description
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/filter-by-genre", response_model=List[Movie])
+def filter_by_genre(genre: str = Query(..., description="Genre to filter movies by")):
+    """
+    Returns all movies that belong to the specified genre.
+    Example: /movies/filter-by-genre?genre=Action
+    """
+    try:
+        filtered_movies = movie_service.filter_genre(genre)
+        if not filtered_movies:
+            raise HTTPException(status_code=404, detail="No movies found for that genre")
+        return filtered_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+
+@router.get("/filter-by-director", response_model=List[Movie])
+def filter_by_director(director: str = Query(..., description="Director to filter movies by")):
+    """
+    Returns all movies directed by the specified director.
+    Example: /movies/filter-by-director?director=Steven Spielberg
+    """
+    try:
+        filtered_movies = movie_service.filter_director(director)
+        if not filtered_movies:
+            raise HTTPException(status_code=404, detail="No movies found for that director")
+        return filtered_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/filter-by-main-star", response_model=List[Movie])
+def filter_by_main_star(main_star: str = Query(..., description="Main star to filter movies by")):
+    """
+    Returns all movies featuring the specified main star.
+    Example: /movies/filter-by-main-star?main_star=Robert Downey Jr.
+    """
+    try:
+        filtered_movies = movie_service.filter_main_stars(main_star)
+        if not filtered_movies:
+            raise HTTPException(status_code=404, detail="No movies found for that main star")
+        return filtered_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/sort-by-release-date", response_model=List[Movie]) 
+def sort_by_release_date(descending: bool = Query(False, description="Sort by release date in descending order")):
+    """
+    Returns all movies sorted by their release date.
+    Example: /movies/sort-by-release-date?descending=true
+    """
+    try:
+        sorted_movies = movie_service.sort_by_release_date(descending)
+        if not sorted_movies:
+            raise HTTPException(status_code=404, detail="No movies found")
+        return sorted_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+                                                  
+    
