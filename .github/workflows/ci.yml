@@ -36,18 +36,12 @@ jobs:
 
       - name: Save coverage summary
         run: |
-          python - << 'PY'
-from xml.etree import ElementTree as ET
-try:
-    tree = ET.parse('reports/coverage.xml')
-    root = tree.getroot()
-    # simple summary write
-    with open('reports/coverage-summary.txt','w',encoding='utf-8') as f:
-        for child in root:
-            f.write(ET.tostring(child,encoding='unicode'))
-except Exception as e:
-    open('reports/coverage-summary.txt','w').write('coverage xml not found or parse error: %s' % e)
-PY
+          if [ -f reports/coverage.xml ]; then
+            # Save the first 200 lines of the coverage xml as a lightweight summary
+            head -n 200 reports/coverage.xml > reports/coverage-summary.txt || true
+          else
+            echo "coverage xml not found" > reports/coverage-summary.txt
+          fi
 
       - name: Upload test reports as artifact
         uses: actions/upload-artifact@v4
