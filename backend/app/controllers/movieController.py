@@ -4,11 +4,25 @@ from ..models.models import Movie
 from datetime import datetime
 from ..services.movieService import MovieService
 
-#create a router instance for movie endpoints
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
-#Instantiate the service class
 movie_service = MovieService()
+
+
+
+#Filter and Sort Endpoints
+@router.get("/", response_model=List[Movie])
+def get_movies():
+    """
+    Get all movies
+    """
+    try:
+        all_movies = movie_service.get_all_movies()
+        if not all_movies:
+            raise HTTPException(status_code=404, detail="No movies found")
+        return all_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 #Define the endpoint to filter movies by title
 @router.get("/search", response_model=List[Movie])
@@ -105,6 +119,41 @@ def filter_by_main_star(main_star: str = Query(..., description="Main star to fi
         return filtered_movies
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/filter-by-start-date", response_model=List[Movie])
+def filter_by_start_date(
+    start_date: datetime = Query(..., description="Start date in YYYY-MM-DD format")
+):
+    """
+    Returns all movies released on or after the specified start date.
+    Example: /movies/filter-by-start-date?start_date=2000-01-01
+    """
+    try:
+        filtered_movies = movie_service.get_filtered_movies(start_date=start_date)
+        if not filtered_movies:
+            raise HTTPException(status_code=404, detail="No movies found after the specified start date")
+        return filtered_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    
+
+
+@router.get("/sort-by-rating", response_model=List[Movie])
+def sort_by_rating(descending: bool = Query(False, description="Sort by IMDb rating in descending order")):
+    """
+    Returns all movies sorted by their IMDb rating.
+    Example: /movies/sort-by-rating?descending=true
+    """
+    try:
+        sorted_movies = movie_service.sort_by_rating(descending)
+        if not sorted_movies:
+            raise HTTPException(status_code=404, detail="No movies found")
+        return sorted_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    
     
 @router.get("/sort-by-release-date", response_model=List[Movie]) 
 def sort_by_release_date(descending: bool = Query(False, description="Sort by release date in descending order")):
@@ -117,6 +166,62 @@ def sort_by_release_date(descending: bool = Query(False, description="Sort by re
         if not sorted_movies:
             raise HTTPException(status_code=404, detail="No movies found")
         return sorted_movies
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/get-filtered-movies", response_model=List[Movie])
+def get_filtered_movies(
+    title: str = Query(None, description="Keyword to search in movie titles"),
+    min_rating: float = Query(None, ge=0.0, le=10.0, description="Minimum IMDb rating"),
+    max_rating: float = Query(None, ge=0.0, le=10.0, description="Maximum IMDb rating"),
+    genre: str = Query(None, description="Genre to filter movies by"),
+    director: str = Query(None, description="Director to filter movies by"),
+    main_star: str = Query(None, description="Main star to filter movies by"),
+    start_date: datetime = Query(None, description="Start date in YYYY-MM-DD format"),
+    sort_by: str = Query(None, description="Sort by: rating or release_date"),
+    descending: bool = Query(False, description="Sort in descending order")
+):
+    """
+    Returns all movies filtered by the specified criteria and optionally sorted.
+    Example: /movies/get-filtered-movies?title=avg&min_rating=7.0&genre=Action&sort_by=rating&descending=true
+    """
+    try:
+        filtered_movies = movie_service.get_filtered_movies(
+            title=title,
+            genre=genre,
+            min_rating=min_rating,
+            max_rating=max_rating,
+            director=director,
+            main_star=main_star,
+            start_date=start_date,
+            sort_by=sort_by,
+            descending=descending
+        )
+
+        if not filtered_movies:
+            raise HTTPException(status_code=404, detail="No movies found matching the criteria")
+
+        return filtered_movies
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    
+
+
+    
+
+#CRUD Endpoints
+
+@router.post("/create-movie", response_model=Movie, status_code=201)
+def create_movie(movie: Movie):
+    """
+    Create a new movie entry.
+    Example: /movies/create-movie
+    """
+    try:
+        created_movie = movie_service.create_movie(movie)
+        return created_movie
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
                                                   

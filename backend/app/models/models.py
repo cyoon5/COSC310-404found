@@ -2,18 +2,18 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date
 
-class Movie(BaseModel): #Field can be emtpty due to Optional keyword
-    title: str
-    movieIMDbRating: Optional[float] = None
+class Movie(BaseModel):
+    title: str  # required
+    movieIMDbRating: float  # required
+    movieGenres: List[str]  # required
+    directors: List[str]  # required
+    mainStars: List[str]  # required
     totalRatingCount: Optional[int] = None
     totalUserReviews: Optional[str] = None
     totalCriticReviews: Optional[str] = None
     metaScore: Optional[str] = None
-    movieGenres: Optional[List[str]] = None
-    directors: Optional[List[str]] = None
     datePublished: Optional[date] = None
     creators: Optional[List[str]] = None
-    mainStars: Optional[List[str]] = None
     description: Optional[str] = None
     duration: Optional[int] = None
 
