@@ -108,9 +108,9 @@ def test_get_filtered_movies():
     service = MovieService()
     title = "Avengers"
     start_date = datetime(2015, 1, 1)
-    min_rating = 8.1
+    min_rating = 8.3
 
-    result = service.get_filtered_movies(start_date=start_date, min_rating=min_rating)
+    result = service.get_filtered_movies(title = title,start_date=start_date, min_rating=min_rating)
     assert len(result) == 1 # Only "Avengers: Endgame" should match
     for movie in result:
         assert title in movie.title
