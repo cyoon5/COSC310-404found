@@ -1,7 +1,7 @@
 [
   {
-    "userName": "testuser1",
-    "passwordHash": "$2b$12$7Kj4Cf5PIaA/x9gSevl3IeLZLPNGLC0qUksajbOTcj2zDjg.uzCom",
+    "userName": "abc",
+    "passwordHash": "$2b$12$IiqTF84yUgOcycOrZarNvunvd2wyaQrvN4Gw/6t5VnWM8q3UIURNG",
     "role": "user",
     "penalties": 0,
     "watchlist": []

@@ -3,6 +3,9 @@ from typing import Dict, Any
 from ..repositories.usersRepo import load_users, add_user
 from ..repositories.adminRepo import load_admins
 
+
+
+#!!! ADMINS WILL BE MADE MANUALLY, NO REGISTRATION FOR ADMINS THUS NO ENDPOINT !!!
 class AuthService:
     """Service for handling authentication and role-based access."""
 
@@ -15,7 +18,7 @@ class AuthService:
         users = load_users()
         admins = load_admins()
 
-        # Check if username exists in users or admins
+        # Check if username exists in users or admins, ensure that it is unique
         if any(u['userName'] == username for u in users) or any(a['adminName'] == username for a in admins):
             raise ValueError("Username already exists")
 
@@ -31,7 +34,7 @@ class AuthService:
             "watchlist": []
         }
 
-        # Save to users repo
+        # Save to users repo, persist to file(users.json)
         add_user(new_user)
         return new_user
 
