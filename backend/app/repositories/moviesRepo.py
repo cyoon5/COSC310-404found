@@ -9,7 +9,7 @@ from pydantic import BaseModel
 DATA_PATH = Path(__file__).resolve().parents[3] /"data"/"imdb"
 
 def load_all_movies() ->  List[Movie]:
-    movies = []#Honestly probably easier if we just used a dictionary so we dont need to unpack but w/e
+    movies = []
     for movie_folders in DATA_PATH.iterdir():
         if movie_folders.is_dir():
             collect_movies = movie_folders / "metadata.json" 
@@ -22,6 +22,17 @@ def load_all_movies() ->  List[Movie]:
                 print("File not found")
                 
     return movies
+
+def load_movie_by_title(title: str) -> Movie:
+    movie_path = DATA_PATH / title / "metadata.json"
+    try:
+        with movie_path.open("r", encoding="utf-8") as f:
+            movie_info = json.load(f)
+            unpack_dict = Movie(**movie_info)
+            return unpack_dict
+    except FileNotFoundError:
+        print("Movie not found")
+        return None
 
 
 def save_movies(movie: Movie):
@@ -44,12 +55,27 @@ def save_movies(movie: Movie):
         print("Folder exists already")
 
 def update_movies(movie_title: str, values : dict):
-    update_path = DATA_PATH / movie_title / "metadata.json"    
+    update_path = DATA_PATH / movie_title / "metadata.json"
+    def _make_serializable(obj): # Uses recursion to handle nested structures and convert non-serializable types
+        if isinstance(obj, dict):
+            return {k: _make_serializable(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [_make_serializable(v) for v in obj]
+        try:
+            from datetime import date, datetime as _dt
+        except Exception:
+            return obj
+        if isinstance(obj, (_dt, date)):
+            return obj.isoformat()
+        return obj # Returns the object as is if no conversion is needed
+
     with update_path.open("r", encoding="utf-8") as f:
         movie_data = json.load(f)
-        movie_data.update(values)
+    safe_values = _make_serializable(values)
+    movie_data.update(safe_values)
+
     with update_path.open("w", encoding="utf-8") as f:
-        json.dump(movie_data, f, indent = 2, ensure_ascii=False)
+        json.dump(movie_data, f, indent=2, ensure_ascii=False)
     print(f"Updated {movie_title} successfully")
 
 
@@ -63,6 +89,8 @@ def delete_movies(movie_title : str):
         print(f"Error: {e}")
 
 
+
+#Do not expose as endpoint, used for data migration only
 def update_movie_csv(): 
     new_csv_header = [ 
         "Movie Title",
