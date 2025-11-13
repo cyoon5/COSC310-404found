@@ -1,17 +1,9 @@
 [
   {
-    "userName": "TestUser1",
-    "password": "password123",
+    "userName": "testuser1",
+    "passwordHash": "$2b$12$7Kj4Cf5PIaA/x9gSevl3IeLZLPNGLC0qUksajbOTcj2zDjg.uzCom",
     "role": "user",
-    "watchlist": [
-      "Avengers",
-      "idk"
-    ]
-  },
-  {
-    "userName": "TestUser2",
-    "password": "password321",
-    "role": "user",
+    "penalties": 0,
     "watchlist": []
   }
 ]
