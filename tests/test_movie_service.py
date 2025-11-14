@@ -163,7 +163,7 @@ def test_integration_filter_movies(monkeypatch):
         assert data[0]["title"] == "MockedMovie"
 
 
-# Integration test: update endpoint
+#Integration test: update endpoint
 def test_integration_update_movie(monkeypatch):
     mock_movie = Movie(
     title="OldMovie",
@@ -180,7 +180,7 @@ def test_integration_update_movie(monkeypatch):
     description="Updated description",
     duration=300
 )
-    # Implementation expects full Movie object thus must mock full object not just an attribute
+    #Implementation expects full Movie object thus must mock full object not just an 
     with patch("backend.app.services.movieService.MovieService.update_movie", return_value=mock_movie):
         response = client.put("/movies/update-movie/OldMovie", json={
                                                                     "title": "OldMovie",

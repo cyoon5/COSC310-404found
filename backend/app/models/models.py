@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Literal
 from datetime import date
 
 class Movie(BaseModel):
@@ -35,13 +35,15 @@ class Report(BaseModel):
     dateReported: date
     reason: Optional[str] = None 
 
-
 class User(BaseModel):
     userName: str
-    password: str
+    passwordHash: str
+    role: Literal["user"] = "user"
     penalties: int = 0
-    watchlist: List[str] = []  # list of movie title
+    watchlist: List[str] = []
 
 class Admin(BaseModel):
     adminName: str
-    password: str
+    passwordHash: str
+    role: Literal["admin"] = "admin"
+
