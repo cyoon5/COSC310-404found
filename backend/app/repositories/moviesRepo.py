@@ -82,6 +82,8 @@ def update_movies(movie_title: str, values : dict):
 
 def delete_movies(movie_title : str):
     delete_path = DATA_PATH / movie_title
+    if not delete_path.exists():
+            raise ValueError(f"Movie with title '{movie_title}' does not exist")
     try:
         shutil.rmtree(delete_path)
         print(f"{movie_title} and its contents sucessfully deleted")

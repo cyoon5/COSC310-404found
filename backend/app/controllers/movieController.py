@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional
+from fastapi import APIRouter, HTTPException, Query, Depends
+from typing import List
 from ..models.models import Movie
 from datetime import datetime
 from ..services.movieService import MovieService
+from backend.app.dependencies import admin_required
 from fastapi.responses import JSONResponse
 
 
@@ -73,7 +74,7 @@ def get_filtered_movies(
 #CRUD Endpoints
 
 @router.post("/create-movie", response_model=Movie, status_code=201)
-def create_movie(movie: Movie):
+def create_movie(movie: Movie, user = Depends(admin_required)):
     """
     Create a new movie.
     Example: /movies/create-movie
@@ -86,7 +87,7 @@ def create_movie(movie: Movie):
                                                   
 
 @router.put("/update-movie/{title}", response_model=Movie)
-def update_movie(title: str, movie: Movie):
+def update_movie(title: str, movie: Movie, user = Depends(admin_required)):
     """
     Update an existing movie by title.
     Example: /movies/update-movie/{title}
@@ -98,7 +99,7 @@ def update_movie(title: str, movie: Movie):
         raise HTTPException(status_code=400, detail=str(e))
     
 @router.delete("/delete-movie/{title}", status_code=204)
-def delete_movie(title: str):
+def delete_movie(title: str, user = Depends(admin_required)):
     """
     Delete a movie by title.
     Example: /movies/delete-movie/{title}

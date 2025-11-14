@@ -120,35 +120,6 @@ def test_integration_get_all_movies(monkeypatch):
         assert len(data) == 1
         assert data[0]["title"] == "Random"
 
-
-# Integration test: create and retrieve movie
-def test_integration_create_and_get_movie(monkeypatch, tmp_path):
-    # Patch DATA_PATH to temp dir (avoids touching real data)
-    monkeypatch.setattr("backend.app.repositories.moviesRepo.DATA_PATH", tmp_path)
-
-    new_movie = {
-        "title": "RandomMovie",
-        "movieIMDbRating": 8.3,
-        "totalRatingCount": 5000,
-        "movieGenres": ["Sci-Fi"],
-        "directors": ["Test Director"],
-        "creators": ["Test Creator"],
-        "mainStars": ["Test Star"],
-        "datePublished": "2020-01-01"
-    }
-
-    # Create movie
-    response = client.post("/movies/create-movie", json=new_movie)
-    assert response.status_code == 201
-    data = response.json()
-    assert data["title"] == "RandomMovie"
-
-    # Retrieve movie
-    response_get = client.get("/movies")
-    assert response_get.status_code == 200
-    assert isinstance(response_get.json(), list)
-
-
 # Integration test: filtering endpoint
 def test_integration_filter_movies(monkeypatch):
     mock_movie = Movie(
@@ -163,47 +134,119 @@ def test_integration_filter_movies(monkeypatch):
         assert data[0]["title"] == "MockedMovie"
 
 
-#Integration test: update endpoint
+
+
+
+ADMIN_USERNAME = "admin1"
+def admin_headers():
+    return {"X-Username": ADMIN_USERNAME}
+
+#Test create and get movie
+def test_integration_create_and_get_movie(monkeypatch, tmp_path):
+    new_movie = {
+        "title": "RandomMovie",
+        "movieIMDbRating": 8.3,
+        "totalRatingCount": 5000,
+        "movieGenres": ["Sci-Fi"],
+        "directors": ["Test Director"],
+        "creators": ["Test Creator"],
+        "mainStars": ["Test Star"],
+        "datePublished": "2020-01-01"
+    }
+
+    # Patch admin check to allow creation
+    with patch("backend.app.repositories.adminRepo.find_admin_by_name", return_value={"adminName": ADMIN_USERNAME}):
+        # Patch movie creation to avoid touching real file
+        with patch("backend.app.services.movieService.MovieService.create_movie", return_value=new_movie):
+            response = client.post("/movies/create-movie", json=new_movie, headers=admin_headers())
+            assert response.status_code == 201
+            data = response.json()
+            assert data["title"] == "RandomMovie"
+
+    # For getting all movies, no admin required
+    with patch("backend.app.services.movieService.MovieService.get_all_movies", return_value=[new_movie]):
+        response_get = client.get("/movies")
+        assert response_get.status_code == 200
+        movies = response_get.json()
+        assert isinstance(movies, list)
+        assert any(m["title"] == "RandomMovie" for m in movies)
+
+
+
+
+
+# Test update movie
 def test_integration_update_movie(monkeypatch):
     mock_movie = Movie(
-    title="OldMovie",
-    movieIMDbRating=7.0,
-    totalRatingCount=150,
-    totalUserReviews="120",
-    totalCriticReviews="15",
-    metaScore="85",
-    movieGenres=["Action"],
-    directors=["A Dir"],
-    creators=["A Creator"],
-    mainStars=["A Star"],
-    datePublished=datetime(2020, 1, 1),
-    description="Updated description",
-    duration=300
-)
-    #Implementation expects full Movie object thus must mock full object not just an 
-    with patch("backend.app.services.movieService.MovieService.update_movie", return_value=mock_movie):
-        response = client.put("/movies/update-movie/OldMovie", json={
-                                                                    "title": "OldMovie",
-                                                                    "movieIMDbRating": 8.0,
-                                                                    "totalRatingCount": 150,
-                                                                    "totalUserReviews": "120",
-                                                                    "totalCriticReviews": "15",
-                                                                    "metaScore": "85",
-                                                                    "movieGenres": ["Action"],
-                                                                    "directors": ["A Dir"],
-                                                                    "creators": ["A Creator"],
-                                                                    "mainStars": ["A Star"],
-                                                                    "datePublished": "2020-01-01",
-                                                                    "description": "Updated description",
-                                                                    "duration": 300
-                                                                })
-        assert response.status_code == 200
-        assert "title" in response.json()
+        title="OldMovie",
+        movieIMDbRating=7.0,
+        totalRatingCount=150,
+        totalUserReviews="120",
+        totalCriticReviews="15",
+        metaScore="85",
+        movieGenres=["Action"],
+        directors=["A Dir"],
+        creators=["A Creator"],
+        mainStars=["A Star"],
+        datePublished=datetime(2020, 1, 1),
+        description="Updated description",
+        duration=300
+    )
+
+    # Patch the admin check to pass
+    with patch("backend.app.repositories.adminRepo.find_admin_by_name", return_value={"adminName": ADMIN_USERNAME}):
+        # Patch the update_movie service to return the mocked movie
+        with patch("backend.app.services.movieService.MovieService.update_movie", return_value=mock_movie):
+            response = client.put(
+                "/movies/update-movie/OldMovie",
+                json={
+                    "title": "OldMovie",
+                    "movieIMDbRating": 8.0,
+                    "totalRatingCount": 150,
+                    "totalUserReviews": "120",
+                    "totalCriticReviews": "15",
+                    "metaScore": "85",
+                    "movieGenres": ["Action"],
+                    "directors": ["A Dir"],
+                    "creators": ["A Creator"],
+                    "mainStars": ["A Star"],
+                    "datePublished": "2020-01-01",
+                    "description": "Updated description",
+                    "duration": 300
+                },
+                headers=admin_headers()
+            )
+            assert response.status_code == 200
+            assert "title" in response.json()
 
 
-#Integration test: delete endpoint
+# Test delete movie
 def test_integration_delete_movie(monkeypatch):
-    with patch("backend.app.services.movieService.MovieService.delete_movie", return_value=None) as mock_delete:
-        response = client.delete("/movies/delete-movie/OldMovie")
-        assert response.status_code == 204
-        mock_delete.assert_called_once_with("OldMovie")
+    # Patch the admin check to pass
+    with patch("backend.app.repositories.adminRepo.find_admin_by_name", return_value={"adminName": ADMIN_USERNAME}):
+        with patch("backend.app.services.movieService.MovieService.delete_movie", return_value=None) as mock_delete:
+            response = client.delete("/movies/delete-movie/OldMovie", headers=admin_headers())
+            assert response.status_code == 204
+            mock_delete.assert_called_once_with("OldMovie")
+
+
+# Test create movie blocked for non-admin
+def test_create_movie_non_admin_blocked(monkeypatch):
+    non_admin_username = "abc"
+    new_movie = {
+        "title": "RandomMovie",
+        "movieIMDbRating": 8.3,
+        "totalRatingCount": 5000,
+        "movieGenres": ["Sci-Fi"],
+        "directors": ["Test Director"],
+        "creators": ["Test Creator"],
+        "mainStars": ["Test Star"],
+        "datePublished": "2020-01-01"
+    }
+
+    # Patch find_admin_by_name to return None (simulating a normal user)
+    with patch("backend.app.repositories.adminRepo.find_admin_by_name", return_value=None):
+        response = client.post("/movies/create-movie", json=new_movie, headers={"X-Username": non_admin_username})
+        assert response.status_code == 403
+        assert response.json()["detail"] == "Admin access required"
+
