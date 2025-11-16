@@ -11,7 +11,10 @@
     "passwordHash": "$2b$12$MAUZ8Rjgy0fr7oyST/Htm.891FVrJGPeXIhbRZnScBT/oD81/4l92",
     "role": "user",
     "penalties": 0,
-    "watchlist": []
+    "watchlist": [
+      "Joker",
+      "Avengers Endgame"
+    ]
   },
   {
     "userName": "testuser",

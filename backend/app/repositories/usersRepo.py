@@ -1,10 +1,11 @@
 from pathlib import Path
 import json, os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from ..models.models import User
 
 # Path to users.json
 DATA_PATH = Path(__file__).resolve().parents[3] / "data" / "users.json"
+USERS_FILE = os.path.join("data", "users.json")
 
 def load_users() -> List[Dict[str, Any]]:
     """
@@ -66,3 +67,64 @@ def delete_user(username: str):
             save_users(users)
             return
     raise ValueError(f"User '{username}' not found")
+
+def update_user_record(updated_user: dict) -> dict:
+    """
+    Replace a user record in users.json by userName and return the updated dict.
+    """
+    users = load_users()
+    for idx, user in enumerate(users):
+        if user.get("userName") == updated_user.get("userName"):
+            users[idx] = updated_user
+            save_users(users)
+            return updated_user
+    raise ValueError("User not found when attempting to update")
+
+
+def get_watchlist(username: str) -> List[str]:
+    """
+    Return the watchlist for a given userName (empty list if none).
+    """
+    user = find_user_by_username(username)
+    if not user:
+        raise ValueError("User not found")
+
+    watchlist = user.get("watchlist")
+    if watchlist is None:
+        return []
+    # ensure it's a list of strings
+    return list(watchlist)
+
+
+def add_to_watchlist(username: str, movie_title: str) -> List[str]:
+    """
+    Add a movie title to a user's watchlist (idempotent).
+    """
+    user = find_user_by_username(username)
+    if not user:
+        raise ValueError("User not found")
+
+    watchlist = user.get("watchlist") or []
+    if movie_title not in watchlist:
+        watchlist.append(movie_title)
+        user["watchlist"] = watchlist
+        update_user_record(user)
+
+    return watchlist
+
+
+def remove_from_watchlist(username: str, movie_title: str) -> List[str]:
+    """
+    Remove a movie title from a user's watchlist (no error if not present).
+    """
+    user = find_user_by_username(username)
+    if not user:
+        raise ValueError("User not found")
+
+    watchlist = user.get("watchlist") or []
+    if movie_title in watchlist:
+        watchlist.remove(movie_title)
+        user["watchlist"] = watchlist
+        update_user_record(user)
+
+    return watchlist
