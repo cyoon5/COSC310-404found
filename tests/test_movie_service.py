@@ -120,7 +120,7 @@ def test_integration_get_all_movies(monkeypatch):
         assert len(data) == 1
         assert data[0]["title"] == "Random"
 
-# Integration test: filtering endpoint
+# Integration test for filtering endpoint
 def test_integration_filter_movies(monkeypatch):
     mock_movie = Movie(
         title="MockedMovie", movieIMDbRating=9.0, movieGenres=["Action"],

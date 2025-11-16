@@ -1,94 +1,116 @@
 from pathlib import Path
-import json, os, csv
-from typing import List,Dict,Any
+import csv
+from typing import List, Dict, Any
 from ..models.models import Review
 
-
-#__file__ holds pathname of module from where module was loaded, in this case reviewsRepo is held
 DATA_PATH = Path(__file__).resolve().parents[3] / "data" / "imdb"
 
 
-def load_all_reviews(movieTitle: str) -> List[Dict[str,Any]]: 
-    reviews = []
-    moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
-    if moviePath.exists():  
-            with moviePath.open('r', newline = '', encoding = 'utf-8') as csvFile:
-                 reader = csv.DictReader(csvFile)
-                 reviews = list(reader) #convert to list of dict
-    else:
-        print(f"Review file for {movieTitle} not found.")
-    return reviews
+CSV_HEADERS = [
+    "Movie Title",
+    "Date of Review",
+    "User",
+    "Usefulness Vote",
+    "Total Votes",
+    "User's Rating out of 10",
+    "Review Title",
+    "Review",
+    "Reports"
+]
 
 
-def save_review(movieTitle : str, review : Review) -> None:
-    data = [review.movieTitle,review.date, review.user, review.usefulVotes, review.totalVotes,review.rating, review.title, review.body, review.reportCount]
+def load_reviews(movieTitle: str, amount: int = 10) -> List[Dict[str, Any]]:
     moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
+    if not moviePath.exists():
+        return []
+
+    with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
+        reader = list(csv.DictReader(csvFile))
+        return reader[:amount]
+
+
+def load_all_reviews(movieTitle: str) -> List[Dict[str, Any]]:
+    moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
+    if not moviePath.exists():
+        return []
+
+    with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
+        return list(csv.DictReader(csvFile))
+
+
+def find_review_by_user(movieTitle: str, username: str):
+    rows = load_all_reviews(movieTitle)
+    for r in rows:
+        if r.get("User") == username:
+            return r
+    return None
+
+
+def save_review(movieTitle: str, review: Review) -> None:
+    moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
+    
+    # Map Review object to CSV fields
+    data = {
+        "Movie Title": review.movieTitle,
+        "Date of Review": review.date,
+        "User": review.user,
+        "Usefulness Vote": review.usefulVotes or 0,
+        "Total Votes": review.totalVotes or 0,
+        "User's Rating out of 10": review.rating or 0,
+        "Review Title": review.title,
+        "Review": review.body,
+        "Reports": review.reportCount
+    }
+
     if moviePath.exists():
-        with moviePath.open('a', newline = '', encoding='utf-8') as csvFile: #'a' is append so it dont override
-            writer = csv.writer(csvFile)
+        with moviePath.open("a", newline="", encoding="utf-8") as csvFile:
+            writer = csv.DictWriter(csvFile, fieldnames=data.keys())
             writer.writerow(data)
     else:
         print(f"Review file for {movieTitle} not found.")
 
-        
-#Movie Title,Date of Review,User,Usefulness Vote,
-#Total Votes,User's Rating out of 10,Review Title,Review, Reports 
-#Use movie title and username as PK to uniquely identify a row
-def update_review(movieTitle : str, username : str, updateFields : Dict[str, Any]) -> None:
-     checkUpdated = False
-     updatePath = DATA_PATH / movieTitle / "movieReviews.csv"
-      #with updatePath.open("r",newline = '',encoding="utf-8") as csvFile:
-          # reader = csv.DictReader(csvFile) #reads data as a dictionary
-          # rows = list(reader)#converts it to a list of dictionaries
-     rows = load_all_reviews(movieTitle)
-          
- 
 
-     for dicts in rows: #Basically rows contain every review and dicts contains individual review
-        if dicts["Movie Title"] == movieTitle and dicts["User"] == username:
-             for key, value in updateFields.items(): #returns dictioanry key and value pair as a tuple e.g Rating : 9.0
-                  if key in dicts: #If the key listed in updateFIelds is in that dict then it updates it to a new value
-                       dicts[key] = value #updates the value in dictionary to the new value
-                       checkUpdated = True
-             break #should leave loop once updated
-             
-     if checkUpdated:
-          with updatePath.open("w", newline = '', encoding = 'utf-8') as csvFile:
-               fields = rows[0].keys() # get header values
-               writer = csv.DictWriter(csvFile, fieldnames=fields)
-               writer.writeheader()
-               writer.writerows(rows)
-     else:
-          print("Unable to update")
+
+def update_review(movieTitle: str, username: str, updateFields: Dict[str, Any]) -> None:
+    moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
+    rows = load_all_reviews(movieTitle)
+
+    updated = False
+
+    for row in rows:
+        if row["Movie Title"] == movieTitle and row["User"] == username:
+            for key, value in updateFields.items():
+                if key in row:
+                    row[key] = value
+            updated = True
+            break
+
+    if not updated:
+        print("Unable to update (review not found)")
+        return
+
+    with moviePath.open("w", newline="", encoding="utf-8") as csvFile:
+        writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def delete_review(movieTitle: str, username: str) -> None:
-     keepRows = []
-     deletePath = DATA_PATH / movieTitle / "movieReviews.csv"
-     rows = load_all_reviews(movieTitle)
+    moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
+    rows = load_all_reviews(movieTitle)
 
-     for dicts in rows:
-          if not (dicts["Movie Title"] == movieTitle and dicts["User"] == username):
-               keepRows.append(dicts)#If its not that review, then append to rows to be kept    
+    new_rows = [
+        r for r in rows
+        if not (r["Movie Title"] == movieTitle and r["User"] == username)
+    ]
 
-     if(len(rows) == len(keepRows)):
-          print("Unable to delete")
-          return
+    if len(new_rows) == len(rows):
+        print("Unable to delete (review not found)")
+        return
 
-     #Write reviews overriding everything, keep all but the specified review
-     with deletePath.open("w", newline = '', encoding='utf-8')as writeCsvFile:
-          fields = rows[0].keys()
-          writer = csv.DictWriter(writeCsvFile, fieldnames=fields)
-          writer.writeheader()
-          writer.writerows(keepRows)
-     print("Deletion successful")
-  
+    with moviePath.open("w", newline="", encoding="utf-8") as csvFile:
+        writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
+        writer.writeheader()
+        writer.writerows(new_rows)
 
-
-          
-
-
-
-
-
-
+    print("Deletion successful")

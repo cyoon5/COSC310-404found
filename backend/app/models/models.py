@@ -1,9 +1,9 @@
 from __future__ import annotations
-
+from pydantic import BaseModel, Field
+from typing import List, Optional, Literal, Annotated
 from datetime import date, datetime
-from typing import List, Optional, Literal
 
-from pydantic import BaseModel
+
 
 
 # ─────────────────────────────────────────────────────────────
@@ -54,16 +54,14 @@ class Review(BaseModel):
     """
     movieTitle: str
     user: str
+    date: Annotated[date, Field(default_factory=date.today)] 
+    rating: Optional[float] = None
+    usefulVotes: Optional[int] = None
+    totalVotes: Optional[int] = None
+    title: str
+    body: str
+    reportCount: int = 0
 
-    rating: float  # "User's Rating out of 10"
-    usefulVotes: int  # "Usefulness Vote"
-    totalVotes: int  # "Total Votes"
-
-    title: str  # "Review Title"
-    body: str   # "Review"
-
-    dateOfReview: Optional[date] = None
-    reportCount: int = 0  # derived from "Reports" column (treat blank as 0)
 
 
 class ReviewSnapshot(BaseModel):

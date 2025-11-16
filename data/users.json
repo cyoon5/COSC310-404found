@@ -12,5 +12,12 @@
     "role": "user",
     "penalties": 0,
     "watchlist": []
+  },
+  {
+    "userName": "testuser",
+    "passwordHash": "$2b$12$Fu/Eg3sKMEd8KOlKVDcXiO2zyw0mulaLbnp.ftpxpaDFa3FgkpMKC",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": []
   }
 ]

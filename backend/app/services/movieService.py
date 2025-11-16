@@ -140,15 +140,15 @@ class MovieService:
 
 
 
-    #CRUD Operations
+    # CRUD Operations
     def create_movie(self, movie: Movie) -> Movie:
         """
         Create a new movie after validating required fields are non-empty.
         Raises ValueError if validation fails or duplicate exists.
         """
+        # Ensure that required fields are non-empty otherwise raise error
         if not movie.title or not movie.title.strip():
             raise ValueError("Title cannot be empty")
-        # Ensures directors, movieGenres, mainStars, creators must be present and non-empty
         if not movie.directors or len(movie.directors) == 0:
             raise ValueError("Directors list cannot be empty")
         if not movie.movieGenres or len(movie.movieGenres) == 0:
