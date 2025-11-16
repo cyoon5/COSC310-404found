@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Dict, Any, Optional
 from datetime import date
 from pydantic import BaseModel
-
 from ..services.reviewService import ReviewService
 from ..models.models import Review
 from ..dependencies import get_current_user
@@ -37,6 +36,7 @@ def create_review(movieTitle: str, review: Review, current_user: dict = Depends(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
+    
 
 @router.put("/{movieTitle}/{username}")
 def update_review(
@@ -50,7 +50,7 @@ def update_review(
         review_service.modify_review(
             movieTitle,
             username,
-            updateFields.dict(exclude_unset=True), 
+            updateFields.model_dump(exclude_unset=True),
             current_user
         )
         return {"message": "Review updated successfully"}
@@ -71,5 +71,7 @@ def delete_review(
     try:
         review_service.remove_review(movieTitle, username, current_user)
         return {"message": "Review deleted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except HTTPException as he:
         raise he

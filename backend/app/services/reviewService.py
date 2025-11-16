@@ -2,6 +2,7 @@ from typing import List, Dict, Any
 from fastapi import HTTPException
 from datetime import date
 import sys
+from backend.app.repositories.moviesRepo import load_movie_by_title
 
 
 from ..models.models import Review
@@ -32,6 +33,12 @@ class ReviewService:
 
     def create_review(self, movieTitle: str, review: Review) -> None:
 
+
+               
+        movie = load_movie_by_title(movieTitle)
+        if not movie:
+            raise ValueError(f"Movie '{movieTitle}' does not exist.")
+
         if not review.user or not review.user.strip():
             raise ValueError("User cannot be empty")
 
@@ -46,6 +53,7 @@ class ReviewService:
 
         if find_review_by_user(movieTitle, review.user):
             raise ValueError(f"User '{review.user}' has already reviewed this movie.")
+ 
         
         # Just to make sure it works on both windows/mac/linux
         if sys.platform.startswith("win"):
@@ -69,6 +77,10 @@ class ReviewService:
         # Must either be admin or the user who wrote the review
         if current_user["role"] != "admin" and current_user["username"] != username:
             raise HTTPException(status_code=403, detail="Not allowed to edit this review")
+        
+        review = find_review_by_user(movieTitle, username)
+        if not review:
+            raise ValueError(f"Review by user '{username}' for movie '{movieTitle}' not found.")
 
         # Validation (using backend field keys)
         if "rating" in updateFields:
@@ -97,7 +109,16 @@ class ReviewService:
         current_user: Dict[str, str]
     ) -> None:
         """ Takes two username params, username and x-username to verify permissions"""
+
+        movie = load_movie_by_title(movieTitle)
+        if not movie:
+            raise ValueError(f"Movie '{movieTitle}' does not exist.")
+
         #Must either be admin or the user who wrote the review
+        review = find_review_by_user(movieTitle, username)
+        if not review:
+            raise ValueError(f"Review by user '{username}' for movie '{movieTitle}' not found.")
+
         if current_user["role"] != "admin" and current_user["username"] != username:
             raise HTTPException(status_code=403, detail="Not allowed to delete this review")
 

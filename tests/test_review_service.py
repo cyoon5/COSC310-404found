@@ -4,8 +4,9 @@ from fastapi.testclient import TestClient
 from backend.app.services.reviewService import ReviewService
 from backend.app.main import app
 from backend.app.models.models import Review
-from fastapi import HTTPException
 from datetime import date
+from backend.app.dependencies import get_current_user
+
 
 
 
@@ -54,4 +55,219 @@ def test_create_review_success():
         service.create_review("TestMovie", review)
         mock_save.assert_called_once_with("TestMovie", review)
 
+# Test creating a review with duplicate user
+def test_create_review_duplicate_user():
+    review = Review(
+        user="tester",
+        rating=8,
+        title="Good movie",
+        body="Really enjoyed it",
+        usefulVotes=0,
+        totalVotes=0,
+        reportCount=0,
+        date=date.today(),           
+        movieTitle="TestMovie"       
+    )
+
+    with patch("backend.app.services.reviewService.find_review_by_user", return_value=review):
+        service = ReviewService()
+        with pytest.raises(ValueError, match="has already reviewed this movie"):
+            service.create_review("TestMovie", review)
+
+
+# Test creating a review with invalid rating
+def test_create_review_invalid_rating():
+    review = Review(
+        user="tester",
+        rating=15,  # Invalid rating
+        title="Bad movie",
+        body="Did not like it",
+        usefulVotes=0,
+        totalVotes=0,
+        reportCount=0,
+        date=date.today(),           
+        movieTitle="TestMovie"       
+    )
+
+    service = ReviewService()
+    with pytest.raises(ValueError, match="Rating must be between 1 and 10"):
+        service.create_review("TestMovie", review)
+
+
+#mock unit test for updating a review successfully
+def test_update_review_success():
+    existing_review = Review(
+        user="tester",
+        rating=6,
+        title="Okay movie",
+        body="It was fine",
+        usefulVotes=0,
+        totalVotes=0,
+        reportCount=0,
+        date=date.today(),           
+        movieTitle="TestMovie"
+    )
+
+    updated_data = {
+        "rating": 9,
+        "title": "Great movie",
+        "body": "Really enjoyed it"
+    }
+
+    expected_csv_updates = {
+        "User's Rating out of 10": 9,
+        "Review Title": "Great movie",
+        "Review": "Really enjoyed it"
+    }
+
+    with patch("backend.app.services.reviewService.find_review_by_user", return_value=existing_review), \
+         patch("backend.app.services.reviewService.update_review") as mock_update:
+        service = ReviewService()
+        service.modify_review(
+            "TestMovie",
+            "tester",
+            updated_data,
+            current_user={"username": "tester", "role": "user"}
+        )
+        mock_update.assert_called_once_with("TestMovie", "tester", expected_csv_updates)
+
+
+def test_update_review_not_found():
+    with patch("backend.app.services.reviewService.find_review_by_user", return_value=None):
+        service = ReviewService()
+        with pytest.raises(ValueError, match="Review by user 'nonexistent' for movie 'TestMovie' not found."):
+            service.modify_review(
+                "TestMovie",
+                "nonexistent",
+                {"rating": 7},
+                current_user={"username": "nonexistent", "role": "user"}
+            )
+
+def test_delete_review_success():
+    with patch("backend.app.services.reviewService.delete_review") as mock_delete, \
+         patch("backend.app.services.reviewService.find_review_by_user", return_value=Review(
+             user="tester",
+             rating=8,
+             title="Good movie",
+             body="Really enjoyed it",
+             usefulVotes=0,
+             totalVotes=0,
+             reportCount=0,
+             date=date.today(),           
+             movieTitle="TestMovie"       
+         )):
+        service = ReviewService()
+        service.remove_review(
+            "TestMovie",
+            "tester",
+            current_user={"username": "tester", "role": "user"}
+        )
+        mock_delete.assert_called_once_with("TestMovie", "tester")
+
+def test_delete_review_not_found():
+    with patch("backend.app.services.reviewService.find_review_by_user", return_value=None):
+        service = ReviewService()
+        with pytest.raises(ValueError, match="Review by user 'nonexistent' for movie 'TestMovie' not found."):
+            service.remove_review(
+                "TestMovie",
+                "nonexistent",
+                current_user={"username": "nonexistent", "role": "user"}
+            )
+
+
+
+
+
+
+# INTEGRATION TESTS
+
+client = TestClient(app)
+
+# Integration test for getting reviews for a movie
+def test_get_reviews_endpoint_success():
+    fake_reviews = [
+        {"title": "Amazing movie", "rating": 9},
+        {"title": "Pretty good", "rating": 8},
+    ]
+
+    # Patch the service method used inside the endpoint
+    with patch("backend.app.controllers.reviewController.review_service.get_reviews", return_value=fake_reviews):
+        response = client.get("/reviews/Random?amount=10")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 2
+        assert data == fake_reviews
+
+
+
+
+
+
+def test_create_review_endpoint_success():
+    review_payload = {
+        "user": "testuser",
+        "rating": 8,
+        "title": "Good movie",
+        "body": "Enjoyed it",
+        "usefulVotes": 0,
+        "totalVotes": 0,
+        "reportCount": 0,
+        "date": str(date.today()),           
+        "movieTitle": "TestMovie"       
+    }
+
+    # We do this because get_current_user normally looks up the user in the repo (JSON files)
+    # Something to do with dependency injection in FastAPI
+    client.app.dependency_overrides[get_current_user] = lambda: {"username": "testuser", "role": "user"}
+    try:
+        with patch("backend.app.controllers.reviewController.review_service.create_review") as mock_create:
+            response = client.post("/reviews/TestMovie", json=review_payload)
+            assert response.status_code == 200
+            data = response.json()
+            assert data["message"] == "Review created successfully"
+            mock_create.assert_called_once()
+    finally:
+        client.app.dependency_overrides.pop(get_current_user, None)
+
+
+def test_update_review_endpoint_success():
+    update_payload = {
+        "rating": 9,
+        "title": "Great movie",
+        "body": "Really enjoyed it"
+    }
+
+    client.app.dependency_overrides[get_current_user] = lambda: {"username": "testuser", "role": "user"}
+    try:
+        with patch("backend.app.controllers.reviewController.review_service.modify_review") as mock_modify:
+            response = client.put("/reviews/TestMovie/testuser", json=update_payload)
+            assert response.status_code == 200
+            data = response.json()
+            assert data["message"] == "Review updated successfully"
+            mock_modify.assert_called_once_with(
+                "TestMovie",
+                "testuser",
+                update_payload,
+                {"username": "testuser", "role": "user"}
+            )
+    finally:
+        client.app.dependency_overrides.pop(get_current_user, None)
+    
+def test_delete_review_endpoint_success():
+    client.app.dependency_overrides[get_current_user] = lambda: {"username": "testuser", "role": "user"}
+    try:
+        with patch("backend.app.controllers.reviewController.review_service.remove_review") as mock_remove:
+            response = client.delete("/reviews/TestMovie/testuser")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["message"] == "Review deleted successfully"
+            mock_remove.assert_called_once_with(
+                "TestMovie",
+                "testuser",
+                {"username": "testuser", "role": "user"}
+            )
+    finally:
+        client.app.dependency_overrides.pop(get_current_user, None)
+     
 
