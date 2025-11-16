@@ -48,7 +48,7 @@ def save_movies(movie: Movie):
         csv_path = movie_folder / "movieReviews.csv"
 
         if not csv_path.exists():
-            csv_path.write_text("Movie Title,Date of Review,User,Usefulness Vote,Total Votes,User's Rating out of 10,Review Title,Review, Reports\n",
+            csv_path.write_text("Movie Title,Date of Review,User,Usefulness Vote,Total Votes,User's Rating out of 10,Review Title,Review,Reports\n",
             encoding="utf-8")
 
     except FileExistsError:

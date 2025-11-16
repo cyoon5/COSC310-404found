@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import List, Optional, Literal
+from pydantic import BaseModel, Field
+from typing import List, Optional, Literal, Annotated
 from datetime import date
 
 class Movie(BaseModel):
@@ -17,17 +17,16 @@ class Movie(BaseModel):
     description: Optional[str] = None
     duration: Optional[int] = None
 
-
 class Review(BaseModel):
     movieTitle: str
-    user: str                          
-    date: date                         
-    rating: Optional[float] = None    #out of 10
-    usefulVotes: Optional[int] = None 
-    totalVotes: Optional[int] = None  
-    title: str                        
-    body: str                          
-    reportCount: int = 0               
+    user: str
+    date: Annotated[date, Field(default_factory=date.today)] 
+    rating: Optional[float] = None
+    usefulVotes: Optional[int] = None
+    totalVotes: Optional[int] = None
+    title: str
+    body: str
+    reportCount: int = 0
 
 class Report(BaseModel):
     review: Review  
