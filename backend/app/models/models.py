@@ -187,7 +187,7 @@ class User(BaseModel):
     watchlist: List[str] = []
 
     # Unix timestamp for when ban ends; None if not currently banned
-    banExpiresAt: Optional[int] = None
+    banExpiresAt: Optional[float] = None
 
 
 class Admin(BaseModel):
