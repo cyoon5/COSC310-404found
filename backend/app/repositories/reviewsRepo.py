@@ -33,23 +33,17 @@ def load_reviews(movieTitle: str, amount: int = 10) -> List[Dict[str, Any]]:
         return reviews
 
 
-# def load_reviews(movieTitle: str, amount: int = 10) -> List[Dict[str, Any]]:
-#     moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
-#     if not moviePath.exists():
-#         return []
-
-#     with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
-#         reader = list(csv.DictReader(csvFile))
-#         return reader[:amount]
-
-
 def load_all_reviews(movieTitle: str) -> List[Dict[str, Any]]:
     moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
     if not moviePath.exists():
         return []
 
     with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
-        return list(csv.DictReader(csvFile))
+        rows = list(csv.DictReader(csvFile))
+        for r in rows:
+            if "Review" in r:
+                r["Review"] = r["Review"].replace("\n", " ")  # remove newlines
+        return rows
 
 
 def find_review_by_user(movieTitle: str, username: str):
