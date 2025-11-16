@@ -6,6 +6,8 @@ from backend.app.main import app
 from backend.app.models.models import Review
 from datetime import date
 from backend.app.dependencies import get_current_user
+from backend.app.repositories.moviesRepo import recompute_movie_ratings
+
 
 
 
@@ -226,6 +228,19 @@ def test_delete_review_not_found():
                 current_user={"username": "nonexistent", "role": "user"}
             )
 
+def test_rating_recalculation():
+    # Recompute ratings for TestMovie1
+    recompute_movie_ratings("TestMovie1")
+
+    # Load the movie metadata to verify
+    from backend.app.repositories.moviesRepo import load_movie_by_title
+    movie = load_movie_by_title("TestMovie1")
+
+    assert movie is not None
+    assert movie.movieIMDbRating == 3.0  # (5.0 + 1.0) / 2 = 3.0
+    assert movie.totalRatingCount == 2
+    assert movie.totalUserReviews == 2
+
 
 
 
@@ -321,5 +336,10 @@ def test_delete_review_endpoint_success():
             )
     finally:
         client.app.dependency_overrides.pop(get_current_user, None)
+
+
+
+
+
      
 

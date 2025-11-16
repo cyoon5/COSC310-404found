@@ -2,6 +2,7 @@ from pathlib import Path
 import csv
 from typing import List, Dict, Any
 from ..models.models import Review
+from ..repositories.moviesRepo import recompute_movie_ratings
 
 DATA_PATH = Path(__file__).resolve().parents[3] / "data" / "imdb"
 
@@ -74,6 +75,11 @@ def save_review(movieTitle: str, review: Review) -> None:
         with moviePath.open("a", newline="", encoding="utf-8") as csvFile:
             writer = csv.DictWriter(csvFile, fieldnames=data.keys())
             writer.writerow(data)
+        # After adding a review, recompute movie aggregates
+        try:
+            recompute_movie_ratings(movieTitle)
+        except Exception:
+            pass
     else:
         print(f"Review file for {movieTitle} not found.")
 
@@ -101,6 +107,11 @@ def update_review(movieTitle: str, username: str, updateFields: Dict[str, Any]) 
         writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
         writer.writeheader()
         writer.writerows(rows)
+    # Recompute aggregates after updating a review
+    try:
+        recompute_movie_ratings(movieTitle)
+    except Exception:
+        pass
 
 
 def delete_review(movieTitle: str, username: str) -> None:
@@ -122,3 +133,7 @@ def delete_review(movieTitle: str, username: str) -> None:
         writer.writerows(new_rows)
 
     print("Deletion successful")
+    try:
+        recompute_movie_ratings(movieTitle)
+    except Exception:
+        pass
