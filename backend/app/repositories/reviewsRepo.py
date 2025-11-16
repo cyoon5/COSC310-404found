@@ -137,3 +137,35 @@ def delete_review(movieTitle: str, username: str) -> None:
         recompute_movie_ratings(movieTitle)
     except Exception:
         pass
+
+def upvote_review(movieTitle: str, username: str) -> None:
+    """
+    Increment the 'Usefulness Vote' and 'Total Votes' for a user's review.
+    Recomputes movie stats if needed.
+    """
+    moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
+    rows = load_all_reviews(movieTitle)
+    updated = False
+
+    for row in rows:
+        if row["User"] == username:
+            row["Usefulness Vote"] = int(row.get("Usefulness Vote", 0)) + 1
+            row["Total Votes"] = int(row.get("Total Votes", 0)) + 1
+            updated = True
+            break
+
+    if not updated:
+        print(f"Review by user '{username}' not found for movie '{movieTitle}'")
+        return
+
+    with moviePath.open("w", newline="", encoding="utf-8") as csvFile:
+        writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    # Recompute aggregates for usefulness if you track that
+    try:
+        recompute_movie_ratings(movieTitle)
+    except Exception:
+        pass
+

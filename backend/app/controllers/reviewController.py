@@ -72,3 +72,15 @@ def delete_review(
         return {"message": "Review deleted successfully"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router.post("/{movieTitle}/{username}/upvote")
+def upvote_review(
+    movieTitle: str,
+    username: str,
+):
+    """Upvote a review for a specific movie by a specific user, increments usefulness vote."""
+    try:
+        review_service.upvote_review(movieTitle, username)
+        return {"message": "Review upvoted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

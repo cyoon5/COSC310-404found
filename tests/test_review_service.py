@@ -241,6 +241,13 @@ def test_rating_recalculation():
     assert movie.totalRatingCount == 2
     assert movie.totalUserReviews == 2
 
+def test_upvote_review():
+    # patch the name used by the service (it imports upvote_review into its module)
+    with patch("backend.app.services.reviewService.upvote_review") as mock_upvote:
+        service = ReviewService()
+        service.upvote_review("TestMovie", "tester")
+        mock_upvote.assert_called_once_with("TestMovie", "tester")
+
 
 
 
@@ -334,6 +341,19 @@ def test_delete_review_endpoint_success():
                 "testuser",
                 {"username": "testuser", "role": "user"}
             )
+    finally:
+        client.app.dependency_overrides.pop(get_current_user, None)
+
+
+def test_upvote_review_endpoint_success():
+    client.app.dependency_overrides[get_current_user] = lambda: {"username": "voter", "role": "user"}
+    try:
+        with patch("backend.app.controllers.reviewController.review_service.upvote_review") as mock_upvote:
+            response = client.post("/reviews/TestMovie/testuser/upvote")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["message"] == "Review upvoted successfully"
+            mock_upvote.assert_called_once_with("TestMovie", "testuser")
     finally:
         client.app.dependency_overrides.pop(get_current_user, None)
 
