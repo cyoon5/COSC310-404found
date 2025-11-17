@@ -21,9 +21,9 @@ class Movie(BaseModel):
     mainStars: List[str]
 
     totalRatingCount: Optional[int] = None
-    totalUserReviews: Optional[int] = None
-    totalCriticReviews: Optional[int] = None
-    metaScore: Optional[int] = None
+    totalUserReviews: Optional[str] = None
+    totalCriticReviews: Optional[str] = None
+    metaScore: Optional[str] = None
 
     # Stored as ISO date string in JSON, parsed to date by Pydantic
     datePublished: Optional[date] = None

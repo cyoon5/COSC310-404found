@@ -2,9 +2,10 @@ from typing import List, Dict, Any
 from fastapi import HTTPException
 from datetime import date
 import sys
-from backend.app.repositories.moviesRepo import load_movie_by_title, update_movies
-from ..models.models import Review
+from backend.app.repositories.moviesRepo import load_movie_by_title
 
+
+from ..models.models import Review
 from ..repositories.reviewsRepo import (
     load_reviews,
     save_review,
@@ -32,6 +33,8 @@ class ReviewService:
 
     def create_review(self, movieTitle: str, review: Review) -> None:
 
+
+               
         movie = load_movie_by_title(movieTitle)
         if not movie:
             raise ValueError(f"Movie '{movieTitle}' does not exist.")
@@ -120,5 +123,3 @@ class ReviewService:
             raise HTTPException(status_code=403, detail="Not allowed to delete this review")
 
         delete_review(movieTitle, username)
-
-
