@@ -4,8 +4,6 @@ from datetime import date
 import sys
 from backend.app.repositories.moviesRepo import load_movie_by_title, update_movies
 from ..models.models import Review
-from ..repositories.reviewsRepo import upvote_review
-
 
 from ..repositories.reviewsRepo import (
     load_reviews,
@@ -122,11 +120,5 @@ class ReviewService:
             raise HTTPException(status_code=403, detail="Not allowed to delete this review")
 
         delete_review(movieTitle, username)
-
-
-
-    def upvote_review(self, movieTitle: str, username: str) -> None:
-        upvote_review(movieTitle, username)
-
 
 
