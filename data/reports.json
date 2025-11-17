@@ -19,5 +19,26 @@
     "handledByAdmin": "admin1",
     "handledAt": "2025-11-15T22:50:57.830343",
     "banDurationSeconds": 259200
+  },
+  {
+    "reportId": 2,
+    "review": {
+      "movieTitle": "TestMovie1",
+      "user": "Alice",
+      "rating": 10.0,
+      "usefulVotes": 0,
+      "totalVotes": 0,
+      "title": "string",
+      "body": "string",
+      "reportCount": 1
+    },
+    "reportedBy": "testuser",
+    "status": "confirmed",
+    "dateReported": "2025-11-16T23:44:17.973469",
+    "reasonType": "string",
+    "reason": "string",
+    "handledByAdmin": "admin1",
+    "handledAt": "2025-11-16T23:44:46.601159",
+    "banDurationSeconds": 259200
   }
 ]

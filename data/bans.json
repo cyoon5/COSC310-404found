@@ -12,5 +12,19 @@
     "banDurationSeconds": 259200,
     "bannedAt": "2025-11-15T22:50:57.830343",
     "bannedUntil": "2025-11-18T22:50:57.830343"
+  },
+  {
+    "banId": 2,
+    "userName": "Alice",
+    "reportedBy": "testuser",
+    "reportId": 2,
+    "movieTitle": "TestMovie1",
+    "reviewUser": "Alice",
+    "reasonType": "string",
+    "reason": "string",
+    "banOption": "3d",
+    "banDurationSeconds": 259200,
+    "bannedAt": "2025-11-16T23:44:46.601159",
+    "bannedUntil": "2025-11-19T23:44:46.601159"
   }
 ]
