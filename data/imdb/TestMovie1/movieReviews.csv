@@ -1,3 +1,3 @@
 Movie Title,Date of Review,User,Usefulness Vote,Total Votes,User's Rating out of 10,Review Title,Review,Reports
-TestMovie1,16 November 2025,Alice,11,11,5.0,string,string,0
+TestMovie1,16 November 2025,Alice,0,0,5.0,string,string,0
 TestMovie1,16 November 2025,abc,0,0,1.0,string,string,0
