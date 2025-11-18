@@ -4,16 +4,11 @@ from datetime import date
 import sys
 from backend.app.repositories.moviesRepo import load_movie_by_title
 from ..repositories.moviesRepo import recompute_movie_ratings
-
-
+from ..repositories.reviewsRepo import load_reviews, save_review, update_review, delete_review, find_review_by_user
+from ..models.models import ReviewCreate
 from ..models.models import Review
-from ..repositories.reviewsRepo import (
-    load_reviews,
-    save_review,
-    update_review,
-    delete_review,
-    find_review_by_user
-)
+
+
 
 
 # Map backend field names
@@ -32,16 +27,13 @@ class ReviewService:
     def get_reviews(self, movieTitle: str, count: int = 10):
         return load_reviews(movieTitle, count)
 
-    def create_review(self, movieTitle: str, review: Review) -> None:
+    def create_review(self, movieTitle: str, review: ReviewCreate, current_user: Dict[str, str]) -> None:
 
 
                
         movie = load_movie_by_title(movieTitle)
         if not movie:
             raise ValueError(f"Movie '{movieTitle}' does not exist.")
-
-        if not review.user or not review.user.strip():
-            raise ValueError("User cannot be empty")
 
         if review.rating is None or not (1 <= review.rating <= 10):
             raise ValueError("Rating must be between 1 and 10")
@@ -52,25 +44,31 @@ class ReviewService:
         if not review.body.strip():
             raise ValueError("Review body cannot be empty")
 
-        if find_review_by_user(movieTitle, review.user):
-            raise ValueError(f"User '{review.user}' has already reviewed this movie.")
- 
+        if find_review_by_user(movieTitle, current_user["username"]):
+            raise ValueError(f"User '{current_user['username']}' has already reviewed this movie.")
         
-        # Just to make sure it works on both windows/mac/linux
-        if sys.platform.startswith("win"):
-            day_format = "%#d"
-        else:
-            day_format = "%-d"
+       
+        
+        full_review = Review(
+            movieTitle=movieTitle,
+            user=current_user["username"],                # username from auth
+            date = date.today(),
+            rating=review.rating,
+            title=review.title,
+            body=review.body,
+            usefulVotes=0,
+            totalVotes=0,
+            reportCount=0
+)
 
-        review.date = date.today().strftime(f"{day_format} %B %Y") #match formatting w/ kaggle
-        review.movieTitle = movieTitle
-
-        save_review(movieTitle, review)
+        save_review(movieTitle, full_review)
         # Recompute movie aggregates after creating a review
         try:
             recompute_movie_ratings(movieTitle)
         except Exception:
             pass
+
+
 
     def modify_review( 
         self,

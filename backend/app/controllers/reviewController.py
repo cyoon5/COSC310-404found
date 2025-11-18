@@ -5,16 +5,11 @@ from pydantic import BaseModel
 from ..services.reviewService import ReviewService
 from ..models.models import Review
 from ..dependencies import get_current_user, ensure_not_banned
+from ..models.models import ReviewCreate, ReviewUpdate
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 review_service = ReviewService()
 
-# Request model for updating reviews
-class ReviewUpdate(BaseModel):
-    #Only these fields as user should not update fields like date, user, movieTitle
-    rating: Optional[float] = None
-    title: Optional[str] = None
-    body: Optional[str] = None
 
 
 @router.get("/{movieTitle}", response_model=List[Dict[str, Any]])
@@ -28,16 +23,15 @@ def get_reviews(movieTitle: str, amount: int = Query(10, ge=1, le=100)):
 @router.post("/{movieTitle}")
 def create_review(
     movieTitle: str,
-    review: Review,
+    review: ReviewCreate,
     current_user: dict = Depends(ensure_not_banned),
 ):
-    """Create a new review for a specific movie."""
     try:
-        review.user = current_user["username"]
-        review_service.create_review(movieTitle, review)
+        review_service.create_review(movieTitle, review, current_user)
         return {"message": "Review created successfully"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 
 @router.put("/{movieTitle}/{username}")
@@ -72,3 +66,4 @@ def delete_review(
         return {"message": "Review deleted successfully"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
