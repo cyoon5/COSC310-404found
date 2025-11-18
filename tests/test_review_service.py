@@ -182,7 +182,6 @@ def test_update_review_not_found():
             )
 
 def test_delete_review_success():
-    # Arrange: existing review to delete
     existing_review = Review(
         user="tester",
         rating=8,
@@ -195,7 +194,6 @@ def test_delete_review_success():
         movieTitle="TestMovie"
     )
 
-    # Act & Assert: patch dependencies
     with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
          patch("backend.app.services.reviewService.find_review_by_user", return_value=existing_review), \
          patch("backend.app.services.reviewService.delete_review") as mock_delete:
@@ -211,7 +209,7 @@ def test_delete_review_success():
         mock_delete.assert_called_once_with("TestMovie", "tester")
 
 def test_delete_review_not_found():
-    # Act & Assert: patch dependencies
+
     with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
          patch("backend.app.services.reviewService.find_review_by_user", return_value=None), \
          patch("backend.app.services.reviewService.delete_review"):
@@ -225,6 +223,7 @@ def test_delete_review_not_found():
                 "nonexistent",
                 current_user={"username": "nonexistent", "role": "user"}
             )
+  
 
 
 

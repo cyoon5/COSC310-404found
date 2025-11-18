@@ -1,6 +1,6 @@
 {
-  "title": "string",
-  "movieIMDbRating": 0.0,
+  "title": "TestMovie2",
+  "movieIMDbRating": 7.0,
   "movieGenres": [
     "string"
   ],
@@ -10,11 +10,11 @@
   "mainStars": [
     "string"
   ],
-  "totalRatingCount": 0,
-  "totalUserReviews": "string",
+  "totalRatingCount": 3,
+  "totalUserReviews": 3,
   "totalCriticReviews": "string",
   "metaScore": "string",
-  "datePublished": "2025-11-13",
+  "datePublished": "2025-11-17",
   "creators": [
     "string"
   ],

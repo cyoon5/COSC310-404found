@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from datetime import date
 import sys
 from backend.app.repositories.moviesRepo import load_movie_by_title
+from ..repositories.moviesRepo import recompute_movie_ratings
 
 
 from ..models.models import Review
@@ -65,6 +66,11 @@ class ReviewService:
         review.movieTitle = movieTitle
 
         save_review(movieTitle, review)
+        # Recompute movie aggregates after creating a review
+        try:
+            recompute_movie_ratings(movieTitle)
+        except Exception:
+            pass
 
     def modify_review( 
         self,
@@ -101,6 +107,11 @@ class ReviewService:
         }
 
         update_review(movieTitle, username, csv_updates)
+        # Recompute aggregates after updating a review
+        try:
+            recompute_movie_ratings(movieTitle)
+        except Exception:
+            pass
 
     def remove_review(
         self,
@@ -123,3 +134,8 @@ class ReviewService:
             raise HTTPException(status_code=403, detail="Not allowed to delete this review")
 
         delete_review(movieTitle, username)
+        # Recompute aggregates after deleting a review
+        try:
+            recompute_movie_ratings(movieTitle)
+        except Exception:
+            pass
