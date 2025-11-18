@@ -1,9 +1,9 @@
 {
   "title": "TestMovie1",
-  "movieIMDbRating": 9.0,
-  "totalRatingCount": 100,
-  "totalUserReviews": "100",
-  "totalCriticReviews": "10",
+  "movieIMDbRating": 4.5,
+  "totalRatingCount": 2,
+  "totalUserReviews": "1",
+  "totalCriticReviews": "1",
   "metaScore": "80",
   "movieGenres": [
     "Action"

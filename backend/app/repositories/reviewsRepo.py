@@ -1,5 +1,5 @@
 from pathlib import Path
-import csv
+import csv, json , os
 from typing import List, Dict, Any
 from ..models.models import Review
 
@@ -80,45 +80,145 @@ def save_review(movieTitle: str, review: Review) -> None:
 
 
 def update_review(movieTitle: str, username: str, updateFields: Dict[str, Any]) -> None:
+    """
+    Update a single review row in movieReviews.csv for this movie/user.
+
+    - Maps logical fields from the API (rating, title, body) to the actual
+      CSV column names:
+        rating -> "User's Rating out of 10"
+        title  -> "Review Title"
+        body   -> "Review Body"
+    - If a key in updateFields already matches a CSV column name, it is used directly.
+    - Raises ValueError if the review is not found.
+    """
     moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
-    rows = load_all_reviews(movieTitle)
+    if not moviePath.exists():
+        raise ValueError(f"No reviews file found for movie '{movieTitle}'.")
+
+    # Read existing rows
+    with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
+        reader = csv.DictReader(csvFile)
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
+
+    # Map API field names -> CSV column names
+    column_map = {
+        "rating": "User's Rating out of 10",
+        "title": "Review Title",
+        "body": "Review Body",
+        # You can extend this if you ever allow updating other fields
+        # "usefulVotes": "Usefulness Vote",
+        # "totalVotes": "Total Votes",
+    }
 
     updated = False
 
     for row in rows:
-        if row["Movie Title"] == movieTitle and row["User"] == username:
+        if row.get("Movie Title") == movieTitle and row.get("User") == username:
             for key, value in updateFields.items():
-                if key in row:
-                    row[key] = value
+                if value is None:
+                    continue  # don't overwrite with None
+
+                csv_key = column_map.get(key, key)  # fall back to raw key
+                if csv_key in row:
+                    # Store as string in CSV
+                    row[csv_key] = str(value)
             updated = True
             break
 
     if not updated:
-        print("Unable to update (review not found)")
-        return
+        raise ValueError(
+            f"Review by user '{username}' for movie '{movieTitle}' not found."
+        )
 
+    # Write back all rows with the updated values
     with moviePath.open("w", newline="", encoding="utf-8") as csvFile:
-        writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
+        writer = csv.DictWriter(csvFile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
 
 def delete_review(movieTitle: str, username: str) -> None:
+    """
+    Delete a single review row for this movie/user from movieReviews.csv.
+
+    CSV header (TestMovie1/movieReviews.csv):
+    Movie Title,Date of Review,User,Usefulness Vote,Total Votes,
+    User's Rating out of 10,Review Title,Review Body,Reports
+    """
     moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
-    rows = load_all_reviews(movieTitle)
+    if not moviePath.exists():
+        raise ValueError(f"No reviews file found for movie '{movieTitle}'.")
 
-    new_rows = [
-        r for r in rows
-        if not (r["Movie Title"] == movieTitle and r["User"] == username)
-    ]
+    # Read all rows
+    with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
+        reader = csv.DictReader(csvFile)
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
 
-    if len(new_rows) == len(rows):
-        print("Unable to delete (review not found)")
+    # Filter out the row for this user
+    original_len = len(rows)
+    remaining = [row for row in rows if row.get("User") != username]
+
+    if len(remaining) == original_len:
+        # Nothing was removed → the review didn't exist
+        raise ValueError(
+            f"Review by user '{username}' for movie '{movieTitle}' not found."
+        )
+
+    # Write back the filtered rows
+    with moviePath.open("w", newline="", encoding="utf-8") as writeCsvFile:
+        writer = csv.DictWriter(writeCsvFile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(remaining)
+
+def recompute_movie_rating(movieTitle: str) -> None:
+    """
+    Recompute the movie's average rating and rating count from movieReviews.csv
+    and update metadata.json for that movie.
+
+    - movieIMDbRating: new average (0.0 if no valid ratings)
+    - totalRatingCount: number of reviews with a valid numeric rating
+    """
+    movie_folder = DATA_PATH / movieTitle
+    csv_path = movie_folder / "movieReviews.csv"
+    meta_path = movie_folder / "metadata.json"
+
+    if not csv_path.exists() or not meta_path.exists():
+        # Nothing to do if either file is missing
         return
 
-    with moviePath.open("w", newline="", encoding="utf-8") as csvFile:
-        writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
-        writer.writeheader()
-        writer.writerows(new_rows)
+    ratings = []
 
-    print("Deletion successful")
+    # Read all ratings from CSV
+    with csv_path.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            value = row.get("User's Rating out of 10")
+            if value is None:
+                continue
+            try:
+                r = float(value)
+            except (TypeError, ValueError):
+                continue
+            ratings.append(r)
+
+    if ratings:
+        avg_rating = round(sum(ratings) / len(ratings), 1)
+        count = len(ratings)
+    else:
+        avg_rating = 0.0
+        count = 0
+
+    # Update metadata.json
+    try:
+        with meta_path.open("r", encoding="utf-8") as f:
+            metadata = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        metadata = {}
+
+    metadata["movieIMDbRating"] = avg_rating
+    metadata["totalRatingCount"] = count
+
+    with meta_path.open("w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
