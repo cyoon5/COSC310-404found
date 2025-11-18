@@ -132,8 +132,16 @@ class ReviewService:
         """
         Delete a review (author or admin only), then recompute rating.
         """
+        # Permission check
         if current_user.get("role") != "admin" and current_user.get("username") != username:
             raise PermissionError("Only the review author or an admin can delete this review.")
 
+        # Check if review exists (so tests can patch this)
+        existing = find_review_by_user(movieTitle, username)
+        if not existing:
+            raise ValueError(
+                f"Review by user '{username}' for movie '{movieTitle}' not found."
+            )
+        # Perform delete + recompute
         delete_review(movieTitle, username)
         recompute_movie_rating(movieTitle)
