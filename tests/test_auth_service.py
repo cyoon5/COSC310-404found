@@ -28,7 +28,7 @@ def test_register_user_bcrypt_fault(mock_admins, mock_load_users, mock_hash):
         service.register_user("userFault", "badpass")
 
 
-#Equivalence partitioning test for password length during login
+# Equivalence partitioning test for password length during login
 @pytest.mark.parametrize("password", ["short", "longpassword123456789012345678901234567890"])
 @patch("backend.app.services.authenticationService.load_users")
 @patch("backend.app.services.authenticationService.load_admins", return_value=[])

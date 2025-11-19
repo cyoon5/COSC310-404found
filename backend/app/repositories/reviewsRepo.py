@@ -2,6 +2,7 @@ from pathlib import Path
 import csv
 from typing import List, Dict, Any
 from ..models.models import Review
+from ..repositories.moviesRepo import recompute_movie_ratings
 
 DATA_PATH = Path(__file__).resolve().parents[3] / "data" / "imdb"
 
@@ -25,11 +26,14 @@ def load_reviews(movieTitle: str, amount: int = 10) -> List[Dict[str, Any]]:
         return []
 
     with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
-        reader = list(csv.DictReader(csvFile))
+        raw_rows = list(csv.DictReader(csvFile))
         reviews = []
-        for r in reader[:amount]:
-            r["Review"] = r["Review"].replace("\n", " ")  # replace newlines with space
-            reviews.append(r)
+        for r in raw_rows[:amount]:
+            # Normalize keys (strip whitespace) to avoid mismatched headers like ' Reports'
+            norm = { (k.strip() if k is not None else k): v for k, v in r.items() }
+            if "Review" in norm and norm["Review"] is not None:
+                norm["Review"] = norm["Review"].replace("\n", " ")  # replace newlines with space
+            reviews.append(norm)
         return reviews
 
 
@@ -39,10 +43,14 @@ def load_all_reviews(movieTitle: str) -> List[Dict[str, Any]]:
         return []
 
     with moviePath.open("r", newline="", encoding="utf-8") as csvFile:
-        rows = list(csv.DictReader(csvFile))
-        for r in rows:
-            if "Review" in r:
-                r["Review"] = r["Review"].replace("\n", " ")  # remove newlines
+        raw_rows = list(csv.DictReader(csvFile))
+        rows: List[Dict[str, Any]] = []
+        for r in raw_rows:
+            # Normalize header keys (strip whitespace)
+            norm = { (k.strip() if k is not None else k): v for k, v in r.items() }
+            if "Review" in norm and norm["Review"] is not None:
+                norm["Review"] = norm["Review"].replace("\n", " ")  # remove newlines
+            rows.append(norm)
         return rows
 
 
@@ -56,11 +64,17 @@ def find_review_by_user(movieTitle: str, username: str):
 
 def save_review(movieTitle: str, review: Review) -> None:
     moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
+
+        # Format the date for CSV
+    if review.date:
+        date_str = review.date.strftime("%d %B %Y")  # e.g., "17 November 2025"
+    else:
+        date_str = ""
     
     # Map Review object to CSV fields
     data = {
         "Movie Title": review.movieTitle,
-        "Date of Review": review.date,
+        "Date of Review": date_str,
         "User": review.user,
         "Usefulness Vote": review.usefulVotes or 0,
         "Total Votes": review.totalVotes or 0,
@@ -71,9 +85,15 @@ def save_review(movieTitle: str, review: Review) -> None:
     }
 
     if moviePath.exists():
+        # Append using canonical CSV_HEADERS so fieldnames are consistent
         with moviePath.open("a", newline="", encoding="utf-8") as csvFile:
-            writer = csv.DictWriter(csvFile, fieldnames=data.keys())
+            writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
             writer.writerow(data)
+        # Recomputes fields after adding a review
+        try:
+            recompute_movie_ratings(movieTitle)
+        except Exception:
+            pass
     else:
         print(f"Review file for {movieTitle} not found.")
 
@@ -101,6 +121,11 @@ def update_review(movieTitle: str, username: str, updateFields: Dict[str, Any]) 
         writer = csv.DictWriter(csvFile, fieldnames=CSV_HEADERS)
         writer.writeheader()
         writer.writerows(rows)
+    # Recompute after updating a review
+    try:
+        recompute_movie_ratings(movieTitle)
+    except Exception:
+        pass
 
 
 def delete_review(movieTitle: str, username: str) -> None:
@@ -122,3 +147,7 @@ def delete_review(movieTitle: str, username: str) -> None:
         writer.writerows(new_rows)
 
     print("Deletion successful")
+    try:
+        recompute_movie_ratings(movieTitle)
+    except Exception:
+        pass

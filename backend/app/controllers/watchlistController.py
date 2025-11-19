@@ -7,7 +7,7 @@ from backend.app.services.watchlistService import watchlist_service
 
 router = APIRouter(
     prefix="/watchlist",
-    tags=["watchlist"],
+    tags=["Watchlist"],
 )
 
 

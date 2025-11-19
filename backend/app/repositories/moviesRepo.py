@@ -16,6 +16,11 @@ def load_all_movies() ->  List[Movie]:
             try:
              with collect_movies.open("r", encoding="utf-8") as f:
                 movie_info = json.load(f) #deserialize into movies as objects
+                # Ensure fields match Movie model types (some metadata files store counts as ints)
+                for k in ("totalUserReviews", "totalCriticReviews", "metaScore"):
+                    if k in movie_info and movie_info[k] is not None and not isinstance(movie_info[k], str):
+                        movie_info[k] = str(movie_info[k])
+
                 unpack_dict = Movie(**movie_info) #unpackage Dictionary, match movie Class
                 movies.append(unpack_dict) #append so it doesnt override
             except FileNotFoundError:
@@ -28,6 +33,11 @@ def load_movie_by_title(title: str) -> Movie:
     try:
         with movie_path.open("r", encoding="utf-8") as f:
             movie_info = json.load(f)
+            # Normalize certain numeric fields to strings to satisfy Movie model
+            for k in ("totalUserReviews", "totalCriticReviews", "metaScore"):
+                if k in movie_info and movie_info[k] is not None and not isinstance(movie_info[k], str):
+                    movie_info[k] = str(movie_info[k])
+
             unpack_dict = Movie(**movie_info)
             return unpack_dict
     except FileNotFoundError:
@@ -131,6 +141,65 @@ def update_movie_csv():
                 }
                 writer.writerow(updated_rows)
         print(f"Updated {movie_title}")
+
+
+def recompute_movie_ratings(movie_title: str) -> None:
+    """
+    Recompute average rating and counts for a movie from its movieReviews.csv
+    and update the movie's metadata.json atomically.
+    """
+    movie_dir = DATA_PATH / movie_title
+    metadata_path = movie_dir / "metadata.json"
+    csv_path = movie_dir / "movieReviews.csv"
+
+    if not metadata_path.exists():
+        return
+
+    ratings: list[float] = []
+    total_user_reviews = 0
+
+    if csv_path.exists():
+        with csv_path.open("r", newline="", encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                total_user_reviews += 1
+                rating_val = None
+                # check common rating column names
+                for key in ("User's Rating out of 10", "rating", "User Rating", "Rating"):
+                    if key in row and row.get(key) not in (None, "", " "):
+                        rating_val = row.get(key)
+                        break
+                if rating_val is not None and str(rating_val).strip() != "":
+                    try:
+                        ratings.append(float(rating_val))
+                    except Exception:
+                        pass
+
+    total_ratings_count = len(ratings)
+    avg_rating = None
+    if total_ratings_count > 0:
+        avg_rating = round(sum(ratings) / total_ratings_count, 1)
+
+    updates = {}
+    updates["movieIMDbRating"] = avg_rating
+    updates["totalRatingCount"] = total_ratings_count
+    updates["totalUserReviews"] = total_user_reviews
+
+    # Use update_movies to write safely (it serializes dates)
+    try:
+        update_movies(movie_title, updates)
+    except Exception:
+        # fallback atomic write
+        try:
+            with metadata_path.open("r", encoding="utf-8") as f:
+                metadata = json.load(f)
+        except Exception:
+            metadata = {}
+        metadata.update(updates)
+        tmp = metadata_path.with_suffix('.tmp')
+        with tmp.open('w', encoding='utf-8') as f:
+            json.dump(metadata, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, metadata_path)
 
 
 

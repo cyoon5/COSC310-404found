@@ -62,6 +62,17 @@ class Review(BaseModel):
     body: str
     reportCount: int = 0
 
+class ReviewUpdate(BaseModel):
+    #Only these fields as user should not update fields like date, user, movieTitle
+    rating: Optional[float] = None
+    title: Optional[str] = None
+    body: Optional[str] = None
+
+class ReviewCreate(BaseModel): 
+    #Should not be optional when creating a review
+    rating: float
+    title: str
+    body: str
 
 
 class ReviewSnapshot(BaseModel):

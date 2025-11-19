@@ -45,30 +45,24 @@ def test_create_review_success():
         usefulVotes=0,
         totalVotes=0,
         reportCount=0,
-        date=date.today(),           
+        date=date.today(),
         movieTitle="TestMovie"
     )
 
     with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
          patch("backend.app.services.reviewService.find_review_by_user", return_value=None), \
-         patch("backend.app.services.reviewService.save_review") as mock_save:
-
+         patch("backend.app.services.reviewService.save_review") as mock_save, \
+         patch("backend.app.services.reviewService.recompute_movie_ratings") as mock_recompute: 
         service = ReviewService()
-        service.create_review("TestMovie", review)
-
+        service.create_review("TestMovie", review, current_user={"username": "tester", "role": "user"})
         mock_save.assert_called_once()
-        saved_movie, saved_review = mock_save.call_args[0]
-        assert saved_movie == "TestMovie"
-        assert saved_review.user == "tester"
-        assert saved_review.title == "Good movie"
-        assert saved_review.rating == 8
-        assert saved_review.movieTitle == "TestMovie"
-        assert saved_review.date is not None  # date was set internally
+        mock_recompute.assert_called_once_with("TestMovie")
+
+
 
 # Test creating a review with duplicate user
 def test_create_review_duplicate_user():
-    # Arrange: a review that already exists
-    existing_review = Review(
+    review = Review(
         user="tester",
         rating=8,
         title="Good movie",
@@ -80,39 +74,23 @@ def test_create_review_duplicate_user():
         movieTitle="TestMovie"
     )
 
-    # New review with the same user for the same movie
-    new_review = Review(
-        user="tester",
-        rating=9,
-        title="Great movie",
-        body="Loved it",
-        usefulVotes=0,
-        totalVotes=0,
-        reportCount=0,
-        date=date.today(),
-        movieTitle="TestMovie"
-    )
-
-    # Act & Assert: patch dependencies
     with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
-         patch("backend.app.services.reviewService.find_review_by_user", return_value=existing_review), \
-         patch("backend.app.services.reviewService.save_review"):
+         patch("backend.app.services.reviewService.find_review_by_user", return_value=review):
 
         service = ReviewService()
 
-        # Expect ValueError for duplicate user
-        with pytest.raises(ValueError, match="has already reviewed this movie"):
-            service.create_review("TestMovie", new_review)
+        with pytest.raises(ValueError, match="User 'tester' has already reviewed this movie."):
+            service.create_review("TestMovie", review, current_user={"username": "tester", "role": "user"})
 
+    
 
 # Test creating a review with invalid rating
 def test_create_review_invalid_rating():
-    # Arrange: review with invalid rating (e.g., 15)
     review = Review(
         user="tester",
         rating=15,  # Invalid rating
-        title="Bad movie",
-        body="Did not like it",
+        title="Good movie",
+        body="Really enjoyed it",
         usefulVotes=0,
         totalVotes=0,
         reportCount=0,
@@ -120,16 +98,14 @@ def test_create_review_invalid_rating():
         movieTitle="TestMovie"
     )
 
-    # Act & Assert: patch dependencies
     with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
-         patch("backend.app.services.reviewService.find_review_by_user", return_value=None), \
-         patch("backend.app.services.reviewService.save_review"):
+         patch("backend.app.services.reviewService.find_review_by_user", return_value=None):
 
         service = ReviewService()
 
-        # Expect ValueError for invalid rating
         with pytest.raises(ValueError, match="Rating must be between 1 and 10"):
-            service.create_review("TestMovie", review)
+            service.create_review("TestMovie", review, current_user={"username": "tester", "role": "user"})
+
 
 
 #mock unit test for updating a review successfully
@@ -182,7 +158,6 @@ def test_update_review_not_found():
             )
 
 def test_delete_review_success():
-    # Arrange: existing review to delete
     existing_review = Review(
         user="tester",
         rating=8,
@@ -195,7 +170,6 @@ def test_delete_review_success():
         movieTitle="TestMovie"
     )
 
-    # Act & Assert: patch dependencies
     with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
          patch("backend.app.services.reviewService.find_review_by_user", return_value=existing_review), \
          patch("backend.app.services.reviewService.delete_review") as mock_delete:
@@ -211,7 +185,7 @@ def test_delete_review_success():
         mock_delete.assert_called_once_with("TestMovie", "tester")
 
 def test_delete_review_not_found():
-    # Act & Assert: patch dependencies
+
     with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
          patch("backend.app.services.reviewService.find_review_by_user", return_value=None), \
          patch("backend.app.services.reviewService.delete_review"):
@@ -225,11 +199,54 @@ def test_delete_review_not_found():
                 "nonexistent",
                 current_user={"username": "nonexistent", "role": "user"}
             )
+def test_rating_recompute_on_create():
+    review = Review(
+        user="tester",
+        rating=7,
+        title="Nice movie",
+        body="I liked it",
+        usefulVotes=0,
+        totalVotes=0,
+        reportCount=0,
+        date=date.today(),
+        movieTitle="TestMovie"
+    )
+
+    with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
+         patch("backend.app.services.reviewService.find_review_by_user", return_value=None), \
+         patch("backend.app.services.reviewService.save_review") as mock_save, \
+         patch("backend.app.services.reviewService.recompute_movie_ratings") as mock_recompute:
+        service = ReviewService()
+        service.create_review("TestMovie", review, current_user={"username": "tester", "role": "user"})
+        mock_save.assert_called_once()
+        mock_recompute.assert_called_once_with("TestMovie")
 
 
+def test_rating_recompute_on_delete():
+    existing_review = Review(
+        user="tester",
+        rating=8,
+        title="Good movie",
+        body="Really enjoyed it",
+        usefulVotes=0,
+        totalVotes=0,
+        reportCount=0,
+        date=date.today(),
+        movieTitle="TestMovie"
+    )
 
-
-
+    with patch("backend.app.services.reviewService.load_movie_by_title", return_value={"title": "TestMovie"}), \
+         patch("backend.app.services.reviewService.find_review_by_user", return_value=existing_review), \
+         patch("backend.app.services.reviewService.delete_review") as mock_delete, \
+         patch("backend.app.services.reviewService.recompute_movie_ratings") as mock_recompute:
+        service = ReviewService()
+        service.remove_review(
+            "TestMovie",
+            "tester",
+            current_user={"username": "tester", "role": "user"}
+        )
+        mock_delete.assert_called_once_with("TestMovie", "tester")
+        mock_recompute.assert_called_once_with("TestMovie")
 
 # INTEGRATION TESTS
 

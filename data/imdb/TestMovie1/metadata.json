@@ -1,8 +1,8 @@
 {
   "title": "TestMovie1",
-  "movieIMDbRating": 9.0,
-  "totalRatingCount": 100,
-  "totalUserReviews": "100",
+  "movieIMDbRating": 5.5,
+  "totalRatingCount": 2,
+  "totalUserReviews": 2,
   "totalCriticReviews": "10",
   "metaScore": "80",
   "movieGenres": [
