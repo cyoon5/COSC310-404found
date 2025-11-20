@@ -13,8 +13,12 @@ from ..repositories import moderationRepo
 from ..repositories.usersRepo import load_users, save_users
 
 
-# Map banOption → seconds
-BAN_OPTION_TO_SECONDS = {
+# Types for clarity only (no runtime behaviour change)
+BanOption = Literal["3d", "7d", "30d"]
+ReportStatus = Literal["pending", "confirmed", "rejected"]
+
+# Map banOption → duration in seconds
+BAN_OPTION_TO_SECONDS: dict[BanOption, int] = {
     "3d": 3 * 24 * 3600,
     "7d": 7 * 24 * 3600,
     "30d": 30 * 24 * 3600,
@@ -62,13 +66,13 @@ class ModerationService:
 
     def list_pending_reports(self) -> List[Report]:
         """
-        Admin story: view all open moderation work.
+        Admin story: view all open moderation work (pending reports).
         """
         return moderationRepo.list_pending_reports()
 
     def list_reports(
         self,
-        status: Optional[Literal["pending", "confirmed", "rejected"]] = None,
+        status: Optional[ReportStatus] = None,
     ) -> List[Report]:
         """
         Admin story: list all reports, optionally filtered by status.
@@ -96,7 +100,7 @@ class ModerationService:
         admin_username: str,
     ) -> Tuple[Report, Optional[Ban]]:
         """
-        Implements POST /moderation/reports/{report_id}/decision
+        Implements POST /moderation/reports/{report_id}/decision.
 
         Behaviour:
           - reject → status=rejected, handledByAdmin/handledAt set, no ban.
@@ -144,7 +148,7 @@ class ModerationService:
         if ban_option not in BAN_OPTION_TO_SECONDS:
             raise ValueError(f"Invalid ban option: {ban_option}")
 
-        ban_duration_seconds = BAN_OPTION_TO_SECONDS[ban_option]
+        ban_duration_seconds = BAN_OPTION_TO_SECONDS[ban_option]  # type: ignore[arg-type]
         report.banDurationSeconds = ban_duration_seconds
 
         # Create ban record in bans.json
@@ -185,7 +189,7 @@ class ModerationService:
         """
         review_author = report.review.user
         users = load_users()
-        changed = False
+        updated = False
 
         for user in users:
             if user.get("userName") == review_author:
@@ -196,10 +200,10 @@ class ModerationService:
                 except (ValueError, TypeError):
                     penalties = 0
                 user["penalties"] = penalties + 1
-                changed = True
+                updated = True
                 break
 
-        if changed:
+        if updated:
             save_users(users)
         # If not found → CSV-only reviewer; nothing to update.
 
@@ -211,16 +215,16 @@ class ModerationService:
         If user already has a future banExpiresAt → we simply overwrite with this latest ban.
         """
         users = load_users()
-        changed = False
+        updated = False
         ts = int(banned_until.timestamp())
 
         for user in users:
             if user.get("userName") == username:
                 user["banExpiresAt"] = ts
-                changed = True
+                updated = True
                 break
 
-        if changed:
+        if updated:
             save_users(users)
 
     # ─────────────────────────────────────────────
