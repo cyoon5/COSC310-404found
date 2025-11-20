@@ -42,9 +42,13 @@ def add_to_my_watchlist(
 def remove_from_my_watchlist(
     movieTitle: str,
     current_user: dict = Depends(get_current_user),
-):
+) -> dict:
     """
     Remove a movie from the current user's watchlist.
+    Returns:
+        A JSON object with a confirmation message and the updated watchlist.
+    Raises:
+        HTTPException(400): if the movie does not exist in the IMDb dataset.
     """
     try:
         items = watchlist_service.remove_movie(current_user["username"], movieTitle)
