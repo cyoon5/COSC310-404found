@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import patch
 from datetime import datetime, timedelta
-
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
@@ -339,3 +338,92 @@ def test_integration_get_bans_endpoint(mock_list_bans):
     assert data[0]["userName"] == "TVpotatoCat"
     assert data[0]["banOption"] == "7d"
     mock_list_bans.assert_called_once_with(user_name="TVpotatoCat")
+
+    # ---------------------------------------------------------------------------
+# EXTRA UNIT TESTS – ModerationService helpers & list_reports_for_review
+# ---------------------------------------------------------------------------
+
+@patch("backend.app.services.moderationService.moderationRepo.list_reports_for_review")
+def test_list_reports_for_review_delegates_to_repo(mock_list_for_review):
+    service = ModerationService()
+    fake_report = make_pending_report()
+    mock_list_for_review.return_value = [fake_report]
+
+    result = service.list_reports_for_review(movie_title="Joker", review_user="TVpotatoCat")
+
+    mock_list_for_review.assert_called_once_with("Joker", "TVpotatoCat")
+    assert result == [fake_report]
+
+
+@patch("backend.app.services.moderationService.load_users")
+def test_increment_penalties_existing_user_with_int_penalties(mock_load_users):
+    # user already has integer penalties
+    users = [{"userName": "TVpotatoCat", "penalties": 2}]
+    mock_load_users.return_value = users
+    service = ModerationService()
+    report = make_pending_report(user="TVpotatoCat")
+
+    with patch("backend.app.services.moderationService.save_users") as mock_save_users:
+        service._increment_penalties_for_review_author(report)
+
+    mock_save_users.assert_called_once_with(users)
+    assert users[0]["penalties"] == 3
+
+
+@patch("backend.app.services.moderationService.load_users")
+def test_increment_penalties_existing_user_with_non_int_penalties(mock_load_users):
+    # penalties field is non-int → should reset to 0 then +1
+    users = [{"userName": "TVpotatoCat", "penalties": "not_a_number"}]
+    mock_load_users.return_value = users
+    service = ModerationService()
+    report = make_pending_report(user="TVpotatoCat")
+
+    with patch("backend.app.services.moderationService.save_users") as mock_save_users:
+        service._increment_penalties_for_review_author(report)
+
+    mock_save_users.assert_called_once_with(users)
+    assert users[0]["penalties"] == 1
+
+
+@patch("backend.app.services.moderationService.load_users")
+def test_increment_penalties_ignores_csv_only_reviewer(mock_load_users):
+    # No matching userName → should NOT call save_users at all
+    users = [{"userName": "SomeoneElse", "penalties": 5}]
+    mock_load_users.return_value = users
+    service = ModerationService()
+    report = make_pending_report(user="TVpotatoCat")
+
+    with patch("backend.app.services.moderationService.save_users") as mock_save_users:
+        service._increment_penalties_for_review_author(report)
+
+    mock_save_users.assert_not_called()
+    # ensure original penalties untouched
+    assert users[0]["penalties"] == 5
+
+
+@patch("backend.app.services.moderationService.load_users")
+def test_update_ban_expires_sets_timestamp_for_registered_user(mock_load_users):
+    base_time = datetime(2024, 1, 1, 12, 0, 0)
+    users = [{"userName": "TVpotatoCat"}]
+    mock_load_users.return_value = users
+    service = ModerationService()
+
+    with patch("backend.app.services.moderationService.save_users") as mock_save_users:
+        service._update_ban_expires_for_user("TVpotatoCat", base_time)
+
+    mock_save_users.assert_called_once_with(users)
+    assert users[0]["banExpiresAt"] == int(base_time.timestamp())
+
+
+@patch("backend.app.services.moderationService.load_users")
+def test_update_ban_expires_ignores_missing_user(mock_load_users):
+    base_time = datetime(2024, 1, 1, 12, 0, 0)
+    users = [{"userName": "OtherUser"}]
+    mock_load_users.return_value = users
+    service = ModerationService()
+
+    with patch("backend.app.services.moderationService.save_users") as mock_save_users:
+        service._update_ban_expires_for_user("TVpotatoCat", base_time)
+
+    mock_save_users.assert_not_called()
+    assert "banExpiresAt" not in users[0]
