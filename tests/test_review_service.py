@@ -12,6 +12,10 @@ from backend.app.dependencies import get_current_user
 
 # UNIT TESTS
 
+
+
+
+
 # Test getting reviews successfully
 def test_get_reviews():
     fake_reviews = [
@@ -25,6 +29,7 @@ def test_get_reviews():
 
         assert result == fake_reviews
         assert len(result) == 2
+
 
 # Test exception during review loading
 def test_get_reviews_exception():

@@ -17,7 +17,7 @@ movie_service = MovieService()
 @router.get("", response_model=List[Movie])
 def get_movies():
     """
-    Get all movies
+    Gets all movies
     """
     try:
         all_movies = movie_service.get_all_movies()

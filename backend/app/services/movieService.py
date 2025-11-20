@@ -11,10 +11,12 @@ class MovieService:
     def __init__(self):
         pass
 
-    def get_all_movies(self) -> List[Movie]:    
+    def get_all_movies(self) -> List[Movie]: 
+        """ Get all movies in the dataset"""   
         return load_all_movies()
 
     def filter_title(self, movies: List[Movie], title: str) -> List[Movie]:
+        """ Filter movies by title substring, it is case insensitive"""
         filtered = []
         for m in movies:
             if title.lower() in m.title.lower():
@@ -22,6 +24,7 @@ class MovieService:
         return filtered
 
     def filter_rating_min(self, movies: List[Movie], min_rating: float) -> List[Movie]:
+        """ Filter movies by minimum IMDb rating"""
         filtered = []
         for m in movies:
             if m.movieIMDbRating is not None and m.movieIMDbRating >= min_rating:
@@ -29,6 +32,7 @@ class MovieService:
         return filtered
 
     def filter_rating_max(self, movies: List[Movie], max_rating: float) -> List[Movie]:
+        """ Filter movies by maximum IMDb rating"""
         filtered = []
         for m in movies:
             if m.movieIMDbRating is not None and m.movieIMDbRating <= max_rating:
@@ -36,6 +40,7 @@ class MovieService:
         return filtered
 
     def filter_genre(self, movies: List[Movie], genre: str) -> List[Movie]:
+        """Filter movies by genre, case insensitive"""
         filtered = []
         for m in movies:
             for g in m.movieGenres:
@@ -45,6 +50,7 @@ class MovieService:
         return filtered
 
     def filter_director(self, movies: List[Movie], director: str) -> List[Movie]:
+        """Filter movie by director, case insensitive"""
         filtered = []
         for m in movies:
             for d in m.directors:
@@ -54,6 +60,7 @@ class MovieService:
         return filtered
 
     def filter_main_stars(self, movies: List[Movie], main_star: str) -> List[Movie]:
+        """Filter movies by main star, case insensitive"""
         filtered = []
         for m in movies:
             for s in m.mainStars:
@@ -63,6 +70,7 @@ class MovieService:
         return filtered
 
     def filter_by_start_date(self, movies: List[Movie], start_date: datetime) -> List[Movie]:
+        """Filter movies released on or after the specified start date"""
         filtered = []
         for m in movies:
             d = getattr(m, "datePublished", None)
@@ -75,6 +83,7 @@ class MovieService:
 
     #Provides a key function to extract datePublished for sorting if stored in different formats or missing
     def _movie_date_key(self, movie: Movie):
+        """ For date consistency during sorting"""
         d = getattr(movie, "datePublished", None)
         if not d:
             return datetime.min
@@ -93,9 +102,11 @@ class MovieService:
         return datetime.combine(d, datetime.min.time())
 
     def sort_by_rating(self, movies: List[Movie], descending: bool = False) -> List[Movie]:
+        """ Sort movies by IMDb rating, can do ascending/descending"""
         return sorted(movies, key=lambda m: m.movieIMDbRating or float('-inf'), reverse=descending)
 
     def sort_by_release_date(self, movies: List[Movie], descending: bool = False) -> List[Movie]:
+        """ Sort movies by release date, can do ascending/descending"""
         return sorted(movies, key=self._movie_date_key, reverse=descending)
 
 
@@ -114,8 +125,9 @@ class MovieService:
         sort_by: str = None,  # Only "rating" or "release_date"
         descending: bool = False
     ) -> List[Movie]:
-        movies = load_all_movies()
+        """ Returns a list of movies filtered and sorted by the specified criteria."""
 
+        movies = load_all_movies()
         if title:
             movies = self.filter_title(movies, title)
         if genre:

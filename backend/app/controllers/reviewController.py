@@ -26,6 +26,7 @@ def create_review(
     review: ReviewCreate,
     current_user: dict = Depends(ensure_not_banned),
 ):
+    """Create a new review for a specific movie."""
     try:
         review_service.create_review(movieTitle, review, current_user)
         return {"message": "Review created successfully"}
