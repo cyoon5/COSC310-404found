@@ -1,10 +1,10 @@
-# tests/test_enforce_ban.py
-
 import time
 from unittest.mock import patch
+
 from fastapi.testclient import TestClient
 
 from backend.app.main import app
+from backend.app.dependencies import ensure_not_banned
 
 client = TestClient(app)
 
@@ -22,6 +22,9 @@ def make_review_payload(user: str = "bannedUser") -> dict:
         "body": "Test body",
         "reportCount": 0,
     }
+
+
+# ---------- Banned users: endpoints should be blocked ----------
 
 
 @patch("backend.app.dependencies.find_user_by_username")
@@ -71,3 +74,68 @@ def test_banned_user_cannot_delete_review(mock_find_user):
     assert response.status_code == 403
     body = response.json()
     assert body["detail"] == "User is currently banned and cannot perform this action"
+
+
+# ---------- Non-banned users: endpoints should be allowed ----------
+
+
+@patch("backend.app.dependencies.find_user_by_username")
+def test_unbanned_user_can_create_review(mock_find_user):
+    """
+    If banExpiresAt is in the past, ensure_not_banned should allow
+    POST /reviews/{movieTitle} to succeed.
+    """
+    past_ts = time.time() - 3600  # ban expired 1 hour ago
+
+    mock_find_user.return_value = {
+        "userName": "bannedUser",
+        "passwordHash": "fake-hash",
+        "role": "user",
+        "penalties": 0,
+        "watchlist": [],
+        "banExpiresAt": past_ts,
+    }
+
+    # Avoid touching the real reviewService logic; just assert we reach the controller.
+    with patch(
+        "backend.app.controllers.reviewController.review_service.create_review"
+    ) as mock_create:
+        mock_create.return_value = None
+
+        response = client.post(
+            "/reviews/Joker",
+            json=make_review_payload(),
+            headers={"X-Username": "bannedUser"},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["message"] == "Review created successfully"
+    mock_create.assert_called_once()
+
+
+# ---------- Direct unit check on ensure_not_banned behaviour ----------
+
+
+@patch("backend.app.dependencies.find_user_by_username")
+def test_admin_is_never_blocked_even_if_ban_in_future(mock_find_user):
+    """
+    Admin users should never be blocked by ensure_not_banned,
+    even if their record has a future banExpiresAt.
+    """
+    future_ts = time.time() + 3600
+
+    mock_find_user.return_value = {
+        "userName": "admin1",
+        "passwordHash": "fake-hash",
+        "role": "admin",
+        "penalties": 0,
+        "watchlist": [],
+        "banExpiresAt": future_ts,
+    }
+
+    admin_user = {"username": "admin1", "role": "admin"}
+    result = ensure_not_banned(admin_user)
+
+    # The dependency should simply pass the admin through
+    assert result is admin_user
