@@ -5,7 +5,7 @@ from .controllers.reviewController import router as review_router
 from .controllers.moderationController import router as moderation_router
 from backend.app.controllers.watchlistController import router as watchlist_router
 
-app = FastAPI(title="Rotton Eggs Movie Review System")
+app = FastAPI(title="Rotten Eggs Movie Review System")
 
 
 app.include_router(movie_router)

@@ -8,6 +8,12 @@ from backend.app.main import app
 
 
 # UNIT TESTS
+
+
+
+
+
+
 @pytest.fixture
 def sample_movies():
     return [
@@ -20,11 +26,19 @@ def sample_movies():
     ]
 
 
+
 # Equivalence partitioning test for rating boundary
 def test_filter_rating_min_equivalence(sample_movies):
     service = MovieService()
     result = service.filter_rating_min(sample_movies, 7.2)
     assert all(m.movieIMDbRating >= 7.2 for m in result)
+    assert any(m.movieIMDbRating == 7.2 for m in result)
+
+
+def test_filter_rating_max(sample_movies):
+    service = MovieService()
+    result = service.filter_rating_max(sample_movies, 7.2)
+    assert all(m.movieIMDbRating <= 7.2 for m in result)
     assert any(m.movieIMDbRating == 7.2 for m in result)
 
 
@@ -55,7 +69,7 @@ def test_create_movie_raises_value_error_on_empty_title():
         service.create_movie(movie)
 
 
-# Fault injection test – simulate repo failure
+# Fault injection test 
 @patch("backend.app.services.movieService.save_movies", side_effect=Exception("Disk write error"))
 @patch("backend.app.services.movieService.load_all_movies", return_value=[])
 def test_create_movie_repo_failure(mock_load, mock_save):
@@ -97,6 +111,19 @@ def test_delete_movie_missing(mock_delete):
     service = MovieService()
     with pytest.raises(FileNotFoundError):
         service.delete_movie("NonexistentMovie")
+
+# Genre filter test
+def test_filter_by_genre(sample_movies):
+    service = MovieService()
+    result = service.filter_genre(sample_movies, "Drama")
+    assert len(result) == 1
+    assert result[0].title == "Movie B"
+
+
+
+
+
+
 
 
 
