@@ -37,6 +37,7 @@ def find_admin_by_name(admin_name: str) -> Dict[str, Any] | None:
     Return a single admin dict by name, or None if not found.
     """
     admins = load_admins()
+
     for admin in admins:
         if admin.get("adminName") == admin_name:
             return admin
