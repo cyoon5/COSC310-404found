@@ -153,6 +153,7 @@ class MovieService:
 
 
     # CRUD Operations
+    
     def create_movie(self, movie: Movie) -> Movie:
         """
         Create a new movie after validating required fields are non-empty.
