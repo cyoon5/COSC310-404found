@@ -2,7 +2,6 @@ import json,os, csv,shutil
 from pathlib import Path
 from typing import List, Dict, Any
 from ..models.models import Movie
-from pydantic import BaseModel
 
 
 
@@ -15,8 +14,7 @@ def load_all_movies() ->  List[Movie]:
             collect_movies = movie_folders / "metadata.json" 
             try:
              with collect_movies.open("r", encoding="utf-8") as f:
-                movie_info = json.load(f) #deserialize into movies as objects
-                # Ensure fields match Movie model types (some metadata files store counts as ints)
+                movie_info = json.load(f) 
                 for k in ("totalUserReviews", "totalCriticReviews", "metaScore"):
                     if k in movie_info and movie_info[k] is not None and not isinstance(movie_info[k], str):
                         movie_info[k] = str(movie_info[k])
@@ -45,7 +43,7 @@ def load_movie_by_title(title: str) -> Movie:
         return None
 
 
-def save_movies(movie: Movie):
+def save_movies(movie: Movie)-> None:
     try:
         movie_folder = DATA_PATH / movie.title
         movie_folder.mkdir()
@@ -64,7 +62,7 @@ def save_movies(movie: Movie):
     except FileExistsError:
         print("Folder exists already")
 
-def update_movies(movie_title: str, values : dict):
+def update_movies(movie_title: str, values : dict) -> None:
     update_path = DATA_PATH / movie_title / "metadata.json"
     def _make_serializable(obj): # Uses recursion to handle nested structures and convert non-serializable types
         if isinstance(obj, dict):
@@ -90,7 +88,7 @@ def update_movies(movie_title: str, values : dict):
 
 
 
-def delete_movies(movie_title : str):
+def delete_movies(movie_title : str) -> None:
     delete_path = DATA_PATH / movie_title
     if not delete_path.exists():
             raise ValueError(f"Movie with title '{movie_title}' does not exist")
@@ -103,7 +101,7 @@ def delete_movies(movie_title : str):
 
 
 #Do not expose as endpoint, used for data migration only
-def update_movie_csv(): 
+def update_movie_csv() -> None: 
     new_csv_header = [ 
         "Movie Title",
         "Date of Review",
