@@ -1,0 +1,78 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.7, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/amanullahwaseem/Documents/COSC310-404found
+plugins: anyio-4.11.0, cov-7.0.0
+collected 82 items
+
+tests/test_auth_service.py ................                              [ 19%]
+tests/test_enforce_ban.py ....                                           [ 24%]
+tests/test_moderation.py ...................                             [ 47%]
+tests/test_moderation_repo.py .........                                  [ 58%]
+tests/test_movie_service.py ..............                               [ 75%]
+tests/test_review_service.py ...............                             [ 93%]
+tests/test_watchlist.py .....                                            [100%]
+
+=============================== warnings summary ===============================
+tests/test_moderation.py: 14 warnings
+  /Users/amanullahwaseem/Documents/COSC310-404found/tests/test_moderation.py:49: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    dateReported=datetime.utcnow(),
+
+tests/test_moderation.py::test_decide_report_reject_updates_status_and_no_ban
+tests/test_moderation.py::test_decide_report_confirm_without_ban
+tests/test_moderation.py::test_decide_report_confirm_with_ban
+  /Users/amanullahwaseem/Documents/COSC310-404found/backend/app/services/moderationService.py:117: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_moderation.py::test_decide_report_confirm_with_ban
+tests/test_moderation.py::test_list_bans_delegates_to_repo
+tests/test_moderation.py::test_integration_decide_report_endpoint_confirm_with_ban
+tests/test_moderation.py::test_integration_get_bans_endpoint
+  /Users/amanullahwaseem/Documents/COSC310-404found/tests/test_moderation.py:59: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_moderation_repo.py::test_create_report_for_review_and_list
+tests/test_moderation_repo.py::test_replace_report_success_and_error
+tests/test_moderation_repo.py::test_list_pending_and_list_reports_for_review
+tests/test_moderation_repo.py::test_list_pending_and_list_reports_for_review
+  /Users/amanullahwaseem/Documents/COSC310-404found/backend/app/repositories/moderationRepo.py:172: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.13.7-final-0 _______________
+
+Name                                              Stmts   Miss  Cover
+---------------------------------------------------------------------
+backend/__init__.py                                   0      0   100%
+backend/app/__init__.py                               0      0   100%
+backend/app/controllers/__init__.py                   0      0   100%
+backend/app/controllers/authController.py            25      2    92%
+backend/app/controllers/moderationController.py      40      9    78%
+backend/app/controllers/movieController.py           51     14    73%
+backend/app/controllers/reviewController.py          37      7    81%
+backend/app/controllers/watchlistController.py       25      2    92%
+backend/app/dependencies.py                          32      4    88%
+backend/app/main.py                                  12      0   100%
+backend/app/models/models.py                         87      0   100%
+backend/app/repositories/adminRepo.py                41     23    44%
+backend/app/repositories/moderationRepo.py          132     10    92%
+backend/app/repositories/moviesRepo.py              136    118    13%
+backend/app/repositories/reviewsRepo.py              92     79    14%
+backend/app/repositories/usersRepo.py                78     54    31%
+backend/app/services/__init__.py                      0      0   100%
+backend/app/services/authenticationService.py        28      0   100%
+backend/app/services/moderationService.py            79      2    97%
+backend/app/services/movieService.py                160     88    45%
+backend/app/services/reviewService.py                65     15    77%
+backend/app/services/watchlistService.py             22      0   100%
+tests/conftest.py                                     6      0   100%
+tests/test_auth_service.py                          123      0   100%
+tests/test_enforce_ban.py                            42      0   100%
+tests/test_moderation.py                            215      0   100%
+tests/test_moderation_repo.py                       122      0   100%
+tests/test_movie_service.py                         113      0   100%
+tests/test_review_service.py                        119      0   100%
+tests/test_watchlist.py                              58      0   100%
+---------------------------------------------------------------------
+TOTAL                                              1940    427    78%
+======================= 82 passed, 25 warnings in 5.52s ========================
