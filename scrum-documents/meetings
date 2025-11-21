@@ -1,11 +1,32 @@
-2025-11-10, 2PM-4PM, Members Present : Aman, Chanyee, Ishaan
+1.2025-10-20, Members Present: Aman, Chanyee, Ishaan
+    Discussed project requirements and clarified roles.
+    Reviewed GitHub Project board setup and created initial user stories.
+    Set expectations for weekly meetings and communication channels.
+
+2. 2025-10-27, Members Present: Aman, Chanyee, Ishaan
+    Reviewed code and discussed future plans
+
+3. 2025-11-10, 2PM-4PM, Members Present : Aman, Chanyee, Ishaan
     Spoke on dividing work and general workflow
 
-2025-11-12, Members Present: Chanyee, Ishaan
+4. 2025-11-12, Members Present: Chanyee, Ishaan
     Spoke on moderation PR, then spoke on how to proceed
     to ensure the system is consistent for everyone
     Divided tasks for M3 completion, organized backlog
 
+5. 2025-11-14, Members Present: Chanyee, Aman
+    Talked about the tech stack(FastAPI, pytest, etc)
 
-2025-11-12, Members Present: Chanyee, Aman
+6. 2025-11-17, Members Present: Aman, Chanyee, Ishaan
+    Reviewed progress on backend implementation and testing.
+    Ensured consistency across review management, moderation, and watchlist features.
+    Discussed unit tests, integration tests, and CI setup.
+    Confirmed remaining work needed before Milestone 3 submission.
+
+7. 2025-11-20, Members Present: Aman, Chanyee, Ishaan
+    Prepared final PRs and merged completed backend modules.
+    Reviewed test coverage and added missing test cases.
+    Updated traceability matrix and backlog status for Milestone 3.
+    Ensured each member completed required PRs for M3 evaluation.
+
     
