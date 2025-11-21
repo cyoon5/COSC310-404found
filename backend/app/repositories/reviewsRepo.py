@@ -64,8 +64,6 @@ def find_review_by_user(movieTitle: str, username: str):
 
 def save_review(movieTitle: str, review: Review) -> None:
     moviePath = DATA_PATH / movieTitle / "movieReviews.csv"
-
-        # Format the date for CSV
     if review.date:
         date_str = review.date.strftime("%d %B %Y")  # e.g., "17 November 2025"
     else:
