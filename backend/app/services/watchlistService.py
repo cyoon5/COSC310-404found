@@ -2,31 +2,45 @@ from __future__ import annotations
 
 import os
 from typing import List
+from pathlib import Path
 
 from backend.app.repositories import usersRepo
 
-IMDB_ROOT = os.path.join("data", "imdb")
+# Resolve project root and absolute IMDB_ROOT
+PROJECT_ROOT = Path(__file__).resolve().parents[3]  # .../COSC310-Project
+IMDB_ROOT = os.getenv("IMDB_ROOT", str(PROJECT_ROOT / "data" / "imdb"))
+WATCHLIST_ALLOW_UNKNOWN = os.getenv("WATCHLIST_ALLOW_UNKNOWN", "0") == "1"
 MOVIE_REVIEWS_FILENAME = "movieReviews.csv"
 
 
 def _movie_reviews_path(movie_title: str) -> str:
     """
-    Build the expected path for the movie's reviews CSV file.
-    Example:
-        data/imdb/<movie_title>/movieReviews.csv
+    Build the path for the movie's reviews CSV file with case-insensitive matching.
     """
-    return os.path.join(IMDB_ROOT, movie_title, MOVIE_REVIEWS_FILENAME)
+    root = Path(IMDB_ROOT)
+    candidate = root / movie_title / MOVIE_REVIEWS_FILENAME
+    if candidate.exists():
+        return str(candidate)
+    # Case-insensitive directory match
+    try:
+        for d in root.iterdir():
+            if d.is_dir() and d.name.lower() == movie_title.lower():
+                csv = d / MOVIE_REVIEWS_FILENAME
+                if csv.exists():
+                    return str(csv)
+    except FileNotFoundError:
+        pass
+    return str(candidate)
 
 
 def _assert_movie_exists(movie_title: str) -> None:
     """
     Ensure that the given movieTitle exists under data/imdb/<MovieTitle>/movieReviews.csv.
-    Raises:
-        ValueError: if the movie cannot be found in the IMDb folder structure.
     """
     movie_reviews_path = _movie_reviews_path(movie_title)
-    # IMPORTANT: use exists so the tests' mock works
     if not os.path.exists(movie_reviews_path):
+        if WATCHLIST_ALLOW_UNKNOWN:
+            return  # allow bypassing in non-strict environments
         # IMPORTANT: keep this exact string for the tests
         raise ValueError("Movie not found in IMDb dataset")
 
