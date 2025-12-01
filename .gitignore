@@ -20,3 +20,7 @@ backend/__pycache__/
 .env.local
 .DS_Store
 .coverage
+frontend/.next/
+venv/
+backend/__pycache__/
+.coverage
