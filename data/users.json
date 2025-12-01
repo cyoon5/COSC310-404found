@@ -1,0 +1,33 @@
+[
+  {
+    "userName": "abc",
+    "passwordHash": "$2b$12$IiqTF84yUgOcycOrZarNvunvd2wyaQrvN4Gw/6t5VnWM8q3UIURNG",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": []
+  },
+  {
+    "userName": "Alice",
+    "passwordHash": "$2b$12$MAUZ8Rjgy0fr7oyST/Htm.891FVrJGPeXIhbRZnScBT/oD81/4l92",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": [
+      "Joker",
+      "Avengers Endgame"
+    ]
+  },
+  {
+    "userName": "testuser",
+    "passwordHash": "$2b$12$Fu/Eg3sKMEd8KOlKVDcXiO2zyw0mulaLbnp.ftpxpaDFa3FgkpMKC",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": []
+  },
+  {
+    "userName": "testuser2",
+    "passwordHash": "$2b$12$CV6FACVkiBbBsTtvxmnTrek/io1/qukO/VoPceDNSw9UFB7yYsi6q",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": []
+  }
+]

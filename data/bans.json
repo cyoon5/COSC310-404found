@@ -1,0 +1,16 @@
+[
+  {
+    "banId": 1,
+    "userName": "TVpotatoCat",
+    "reportedBy": "Alice",
+    "reportId": 1,
+    "movieTitle": "Joker",
+    "reviewUser": "TVpotatoCat",
+    "reasonType": "uhh",
+    "reason": "ugh",
+    "banOption": "3d",
+    "banDurationSeconds": 259200,
+    "bannedAt": "2025-11-15T22:50:57.830343",
+    "bannedUntil": "2025-11-18T22:50:57.830343"
+  }
+]
