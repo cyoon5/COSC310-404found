@@ -7,6 +7,17 @@ from backend.app.controllers.watchlistController import router as watchlist_rout
 
 app = FastAPI(title="Rotten Eggs Movie Review System")
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 app.include_router(movie_router)
 app.include_router(auth_router)

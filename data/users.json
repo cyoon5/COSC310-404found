@@ -20,12 +20,31 @@
     "userName": "testuser",
     "passwordHash": "$2b$12$Fu/Eg3sKMEd8KOlKVDcXiO2zyw0mulaLbnp.ftpxpaDFa3FgkpMKC",
     "role": "user",
-    "penalties": 0,
-    "watchlist": []
+    "penalties": 1,
+    "watchlist": [
+      "Avengers Endgame",
+      "Forrest Gump",
+      "TestMovie1"
+    ],
+    "banExpiresAt": 1764816189
   },
   {
     "userName": "testuser2",
     "passwordHash": "$2b$12$CV6FACVkiBbBsTtvxmnTrek/io1/qukO/VoPceDNSw9UFB7yYsi6q",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": []
+  },
+  {
+    "userName": "FirstRegisterFromFrontend",
+    "passwordHash": "$2b$12$8Tj2lt.agXSG4/v.ktGereoqgMBUcsYFi5BQZ/XtqZ731JBcMje12",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": []
+  },
+  {
+    "userName": "TestDev",
+    "passwordHash": "$2b$12$g99uoulacIE5VQaqAdRzz.IJFD0gq7wCuT64h/tghXCRmr52Kf3Bm",
     "role": "user",
     "penalties": 0,
     "watchlist": []

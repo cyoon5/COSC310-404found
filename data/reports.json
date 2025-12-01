@@ -19,5 +19,47 @@
     "handledByAdmin": "admin1",
     "handledAt": "2025-11-15T22:50:57.830343",
     "banDurationSeconds": 259200
+  },
+  {
+    "reportId": 2,
+    "review": {
+      "movieTitle": "Avengers Endgame",
+      "user": "jtindahouse",
+      "rating": 4.0,
+      "usefulVotes": 75,
+      "totalVotes": 127,
+      "title": "Time travel is such a lazy way to write stories",
+      "body": "Only a month or so back I was talking to a friend about how much I hate it when serious movies use time travel to get their characters out of problems. I have no problem with movies like 'Back to the Future' or 'Hot Tub Time Machine' that are both comedy based and use the time machine as a plot for the movie as opposed to a solution for characters problems. When a serious movie uses it though it as lazy as writing as dream sequence in my opinion.At the end of the day though that just underlines the problem with these movies. The heroes are far too powerful. Whatever power they need they simply possess conveniently. Heck, 'Dr Strange' can even see into the future to know exactly what to do to make sure everything turns out alright. If that isn't the stupidest thing I've ever seen in a movie I don't know what is.I felt like the movie went very much as expected as well. Sure some characters die, however they were pretty much telegraphed to do so long before the movie came out. There also seemed to be a lack of conflict as key moments. A lot of things went far too smoothly for my liking in terms of the plan. Finally, the ending with 'Iron Man' simply pulling the glove off 'Thanos' - what the hell was that? Was that supposed to be clever writing? 'Thanos' just standing there for an eternity doing nothing waiting for someone to stop him?A lot of the jokes failed to land too. This was a surprisingly unfunny movie. In a 3 hour movie I got maybe 3 light chuckles out of the film. Every joke just felt so forced and some of the characters who don't have a comedy background delivered them very poorly. 'Avengers: Endgame' is three hours of my life I would like back.",
+      "reportCount": 1
+    },
+    "reportedBy": "testuser",
+    "status": "pending",
+    "dateReported": "2025-11-30T03:58:39.258888",
+    "reasonType": "abusive",
+    "reason": null,
+    "handledByAdmin": null,
+    "handledAt": null,
+    "banDurationSeconds": null
+  },
+  {
+    "reportId": 3,
+    "review": {
+      "movieTitle": "TestMovie1",
+      "user": "testuser",
+      "rating": 10.0,
+      "usefulVotes": 0,
+      "totalVotes": 0,
+      "title": "Great",
+      "body": "string",
+      "reportCount": 1
+    },
+    "reportedBy": "testuser",
+    "status": "confirmed",
+    "dateReported": "2025-11-30T03:59:02.840535",
+    "reasonType": "other",
+    "reason": "False informtion",
+    "handledByAdmin": "admin1",
+    "handledAt": "2025-11-30T18:43:09.891773",
+    "banDurationSeconds": 259200
   }
 ]

@@ -1,0 +1,14 @@
+venv
+.env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+.git
+.gitignore
+tests
+testing-documents
+scrum-documents
+adminPasswords.txt
+coverage.txt

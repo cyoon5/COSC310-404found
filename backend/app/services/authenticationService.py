@@ -22,10 +22,8 @@ class AuthService:
         if any(u['userName'] == username for u in users) or any(a['adminName'] == username for a in admins):
             raise ValueError("Username already exists")
 
-        # Hash password
         hashed_pw = bcrypt.hash(password[:72])
 
-        # Create user dict
         new_user = {
             "userName": username,
             "passwordHash": hashed_pw,

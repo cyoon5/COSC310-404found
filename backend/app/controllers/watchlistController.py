@@ -1,4 +1,3 @@
-# backend/app/controllers/watchlistController.py
 
 from fastapi import APIRouter, Depends, HTTPException
 
