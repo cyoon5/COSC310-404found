@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from ..services.authenticationService import AuthService
-
+from ..dependencies import get_current_user
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 auth_service = AuthService()
 
@@ -13,6 +13,9 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+class ChangeUsernameRequest(BaseModel):
+    newUsername: str
 
 # User registration
 @router.post("/register")
@@ -38,3 +41,27 @@ def login(request: LoginRequest):
         return {"message": f"{result['role'].capitalize()} logged in successfully", "role": result['role']}
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
+
+@router.post("/change-username")
+def change_username(
+    request: ChangeUsernameRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Change the username of the currently logged-in user everywhere:
+    - users.json
+    - bans.json
+    - reports.json
+    - all review CSVs (User column).
+    """
+    try:
+        auth_service.change_username_everywhere(
+            current_username=current_user["username"],
+            new_username=request.newUsername,
+        )
+        return {
+            "message": "Username updated successfully",
+            "newUsername": request.newUsername,
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
