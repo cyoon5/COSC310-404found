@@ -4,3 +4,19 @@ node_modules/
 frontend/node_modules/
 /.env
 .DS_Store
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build artifacts
+frontend/.next/
+
+# Python / venv
+venv/
+backend/__pycache__/
+
+# Misc
+.env
+.env.local
+.DS_Store
+.coverage
