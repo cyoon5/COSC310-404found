@@ -4,7 +4,8 @@
     "passwordHash": "$2b$12$IiqTF84yUgOcycOrZarNvunvd2wyaQrvN4Gw/6t5VnWM8q3UIURNG",
     "role": "user",
     "penalties": 0,
-    "watchlist": []
+    "watchlist": [],
+    "bio": "hahahhahah"
   },
   {
     "userName": "Alice",
@@ -14,7 +15,8 @@
     "watchlist": [
       "Joker",
       "Avengers Endgame"
-    ]
+    ],
+    "bio": "hahahhahah"
   },
   {
     "userName": "testuser",
@@ -45,6 +47,13 @@
   {
     "userName": "TestDev",
     "passwordHash": "$2b$12$g99uoulacIE5VQaqAdRzz.IJFD0gq7wCuT64h/tghXCRmr52Kf3Bm",
+    "role": "user",
+    "penalties": 0,
+    "watchlist": []
+  },
+  {
+    "userName": "ab",
+    "passwordHash": "$2b$12$z2JuhN9.SCkhva60A0SRhuBRMbHOjuwA/uK0ZoZMnTMUyOcnemYCO",
     "role": "user",
     "penalties": 0,
     "watchlist": []

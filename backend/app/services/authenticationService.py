@@ -1,9 +1,13 @@
 from passlib.hash import bcrypt
 from typing import Dict, Any
+<<<<<<< Updated upstream
 from pathlib import Path
 import json, csv
 
 from ..repositories.usersRepo import load_users, save_users, add_user
+=======
+from ..repositories.usersRepo import load_users, add_user, update_user
+>>>>>>> Stashed changes
 from ..repositories.adminRepo import load_admins
 from ..repositories.reviewsRepo import DATA_PATH as REVIEWS_DATA_PATH
 
@@ -35,6 +39,7 @@ class AuthService:
             "userName": username,
             "passwordHash": hashed_pw,
             "role": "user",
+            "bio": None,
             "penalties": 0,
             "watchlist": []
         }
@@ -70,6 +75,7 @@ class AuthService:
 
         raise ValueError("Username not found")
     
+<<<<<<< Updated upstream
     def change_username_everywhere(self, current_username: str, new_username: str) -> None:
         """
         Rename a user across:
@@ -167,3 +173,42 @@ class AuthService:
                         writer = csv.DictWriter(f, fieldnames=fieldnames)
                         writer.writeheader()
                         writer.writerows(rows)
+=======
+    def update_bio(self, username: str, bio: str) -> Dict[str, Any]:
+        """
+        Update the bio field for an existing user in users.json.
+        """
+        users = load_users()
+        if not any(u["userName"] == username for u in users):
+            raise ValueError("User not found")
+
+        update_user(username, {"bio": bio})
+        return {"username": username, "bio": bio}
+    
+    def change_password(self, username: str, old_password: str, new_password: str) -> Dict[str, Any]:
+        """
+        Change the password for an existing *user* (not admin).
+        Verifies the old password, then updates users.json with a new bcrypt hash.
+        """
+        users = load_users()
+
+        # Find the user
+        for user in users:
+            if user.get("userName") == username:
+                # Verify current (old) password
+                if not bcrypt.verify(old_password[:72], user["passwordHash"]):
+                    raise ValueError("Incorrect current password")
+
+                # (Optional) prevent using same password again
+                if bcrypt.verify(new_password[:72], user["passwordHash"]):
+                    raise ValueError("New password must be different from the old password")
+
+                # Hash and update
+                new_hash = bcrypt.hash(new_password[:72])
+                update_user(username, {"passwordHash": new_hash})
+
+                return {"username": username, "message": "Password updated"}
+
+        # If we didn't find the user
+        raise ValueError("User not found")
+>>>>>>> Stashed changes
