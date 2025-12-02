@@ -9,13 +9,9 @@ from ..repositories.usersRepo import load_users, add_user, update_user
 
 from ..repositories.usersRepo import load_users, add_user, update_user
 from ..repositories.adminRepo import load_admins
-from ..repositories.reviewsRepo import DATA_PATH as REVIEWS_DATA_PATH
 
-# Project/data paths
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-DATA_DIR = PROJECT_ROOT / "data"
-BANS_JSON = DATA_DIR / "bans.json"
-REPORTS_JSON = DATA_DIR / "reports.json"
+
+
 #!!! ADMINS WILL BE MADE MANUALLY, NO REGISTRATION FOR ADMINS THUS NO ENDPOINT !!!
 class AuthService:
     """Service for handling authentication and role-based access."""
@@ -77,30 +73,40 @@ class AuthService:
     
 
     def change_username_everywhere(self, current_username: str, new_username: str) -> None:
+    def update_bio(self, username: str, bio: str) -> Dict[str, Any]:
         """
-        Rename a user across:
-        - users.json (userName field)
-        - bans.json (userName, reportedBy, reviewUser)
-        - reports.json (review.user, reportedBy)
-        - all review CSVs under data/imdb (User column)
+        Update the bio field for an existing user in users.json.
         """
-
-        if not new_username:
-            raise ValueError("New username cannot be empty")
-
-        if current_username == new_username:
-            raise ValueError("New username must be different from current username")
-
-        # 1) users.json
         users = load_users()
-        found = False
-        for u in users:
-            if u.get("userName") == current_username:
-                u["userName"] = new_username
-                found = True
-
-        if not found:
+        if not any(u["userName"] == username for u in users):
             raise ValueError("User not found")
+
+        update_user(username, {"bio": bio})
+        return {"username": username, "bio": bio}
+    
+    def change_password(self, username: str, old_password: str, new_password: str) -> Dict[str, Any]:
+        """
+        Change the password for an existing *user* (not admin).
+        Verifies the old password, then updates users.json with a new bcrypt hash.
+        """
+        users = load_users()
+
+        # Find the user
+        for user in users:
+            if user.get("userName") == username:
+                # Verify current (old) password
+                if not bcrypt.verify(old_password[:72], user["passwordHash"]):
+                    raise ValueError("Incorrect current password")
+
+                # (Optional) prevent using same password again
+                if bcrypt.verify(new_password[:72], user["passwordHash"]):
+                    raise ValueError("New password must be different from the old password")
+
+                # Hash and update
+                new_hash = bcrypt.hash(new_password[:72])
+                update_user(username, {"passwordHash": new_hash})
+
+                return {"username": username, "message": "Password updated"}
 
         save_users(users)
 

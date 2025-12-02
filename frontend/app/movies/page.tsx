@@ -15,6 +15,7 @@ import { updateReview, deleteReview } from "@/lib/api/reviews";
 
 
 
+
 function MovieCard({ movie }: { movie: Movie }) {
   const [showReviews, setShowReviews] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -42,6 +43,32 @@ function MovieCard({ movie }: { movie: Movie }) {
   });
 
   const [limit, setLimit] = useState(10);
+  const [posterUrl, setPosterUrl] = useState<string | null>(null);
+useEffect(() => {
+  async function fetchPosterDebug() {
+    const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+
+    console.log("TMDB KEY LOADED?", apiKey);  // DEBUG
+
+    const query = encodeURIComponent(movie.title);
+
+    const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`;
+    console.log("Fetching:", url); // DEBUG
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    console.log("TMDB returned:", data); // DEBUG
+
+    if (data?.results?.length > 0 && data.results[0].poster_path) {
+      setPosterUrl(`https://image.tmdb.org/t/p/w500${data.results[0].poster_path}`);
+    }
+  }
+
+  fetchPosterDebug();
+}, [movie.title]);
+
+
 
   async function loadReviews(newLimit = limit) {
     setReviewsLoading(true);
@@ -114,6 +141,14 @@ function MovieCard({ movie }: { movie: Movie }) {
         {movie.title}{" "}
         <span className="badge">{movie.movieIMDbRating}/10</span>
       </h3>
+              {posterUrl && (
+        <img
+          src={posterUrl}
+          alt={`${movie.title} poster`}
+          style={{ width: "200px", borderRadius: "10px", marginBottom: "1rem" }}
+        />
+      )}
+ 
 
       {movie.description && <p>{movie.description}</p>}
 
