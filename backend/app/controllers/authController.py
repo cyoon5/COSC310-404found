@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from ..services.authenticationService import AuthService
-from ..dependencies import get_current_user
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 auth_service = AuthService()
 
@@ -14,8 +14,14 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-class ChangeUsernameRequest(BaseModel):
-    newUsername: str
+class ChangePasswordRequest(BaseModel):
+    username: str
+    old_password: str
+    new_password: str
+
+class UpdateBioRequest(BaseModel):
+    username: str
+    bio: str
 
 # User registration
 @router.post("/register")
@@ -42,26 +48,36 @@ def login(request: LoginRequest):
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
 
-@router.post("/change-username")
-def change_username(
-    request: ChangeUsernameRequest,
-    current_user: dict = Depends(get_current_user),
-):
+@router.post("/change-password")
+def change_password(request: ChangePasswordRequest):
     """
-    Change the username of the currently logged-in user everywhere:
-    - users.json
-    - bans.json
-    - reports.json
-    - all review CSVs (User column).
+    Change an existing user's password.
+
+    - Verifies the old password.
+    - Stores the new password as a bcrypt hash in users.json.
     """
     try:
-        auth_service.change_username_everywhere(
-            current_username=current_user["username"],
-            new_username=request.newUsername,
+        result = auth_service.change_password(
+            request.username,
+            request.old_password,
+            request.new_password,
         )
+        return {"message": "Password changed successfully", "username": result["username"]}
+    except ValueError as e:
+        # You can tune status codes (400 vs 401) as you like
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/update-bio")
+def update_bio(request: UpdateBioRequest):
+    """
+    Update the profile bio for an existing user.
+    """
+    try:
+        result = auth_service.update_bio(request.username, request.bio)
         return {
-            "message": "Username updated successfully",
-            "newUsername": request.newUsername,
+            "message": "Bio updated successfully",
+            "username": result["username"],
+            "bio": result["bio"],
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

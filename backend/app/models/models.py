@@ -196,7 +196,7 @@ class User(BaseModel):
 
     # Simple watchlist of movie titles
     watchlist: List[str] = []
-
+    bio: Optional[str] = None
     # Unix timestamp for when ban ends; None if not currently banned
     banExpiresAt: Optional[float] = None
 
