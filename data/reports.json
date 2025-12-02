@@ -61,5 +61,47 @@
     "handledByAdmin": "admin1",
     "handledAt": "2025-11-30T18:43:09.891773",
     "banDurationSeconds": 259200
+  },
+  {
+    "reportId": 4,
+    "review": {
+      "movieTitle": "Thor Ragnarok",
+      "user": "dumitrescu-robert92",
+      "rating": 1.0,
+      "usefulVotes": 569,
+      "totalVotes": 1141,
+      "title": "Joke, jokes, more jokes",
+      "body": "Was this movie a crappy comedy? Why so many people liked it so much? What was this movie about? What was the purpose of all the jokes? Is this only for kids?Things that bothered me: Ragnarok is supposed to mean the end of the \"world\" but no one took it seriously. Hela is about to conquer the world and kill everybody let's make a little joke. A fight started, oh, please, another little joke. Thor steps on a banana and falls down, ahahaha, funny. Loki - 0 power in all the movie, 0 spells, 0 abilities, just nothing, where was his power, he was so useless and did almost nothing in all the movie. Hulk - personality of a teenage boy on steroids. Thor - so funny, oh my god, joke after joke. Is he THOR or the kid of Deadpool?I had so high expectations but this movie targeted only the kids with all the not funny jokes.",
+      "reportCount": 1
+    },
+    "reportedBy": "admin1",
+    "status": "confirmed",
+    "dateReported": "2025-12-02T21:24:27.691444",
+    "reasonType": "spam",
+    "reason": null,
+    "handledByAdmin": "admin1",
+    "handledAt": "2025-12-02T21:25:05.736039",
+    "banDurationSeconds": null
+  },
+  {
+    "reportId": 5,
+    "review": {
+      "movieTitle": "TestMovie1",
+      "user": "testuser",
+      "rating": 10.0,
+      "usefulVotes": 0,
+      "totalVotes": 0,
+      "title": "Great",
+      "body": "string",
+      "reportCount": 2
+    },
+    "reportedBy": "admin1",
+    "status": "rejected",
+    "dateReported": "2025-12-02T21:28:21.576752",
+    "reasonType": "inappropriate",
+    "reason": null,
+    "handledByAdmin": "admin1",
+    "handledAt": "2025-12-02T21:28:48.550164",
+    "banDurationSeconds": null
   }
 ]

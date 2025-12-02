@@ -1,8 +1,8 @@
 {
   "title": "testtest",
-  "movieIMDbRating": 0.0,
+  "movieIMDbRating": 4.0,
   "movieGenres": [
-    "string"
+    "TestGenre"
   ],
   "directors": [
     "string"
