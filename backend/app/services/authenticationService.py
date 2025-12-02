@@ -1,13 +1,13 @@
 from passlib.hash import bcrypt
 from typing import Dict, Any
-<<<<<<< Updated upstream
+
 from pathlib import Path
 import json, csv
 
 from ..repositories.usersRepo import load_users, save_users, add_user
-=======
 from ..repositories.usersRepo import load_users, add_user, update_user
->>>>>>> Stashed changes
+
+from ..repositories.usersRepo import load_users, add_user, update_user
 from ..repositories.adminRepo import load_admins
 from ..repositories.reviewsRepo import DATA_PATH as REVIEWS_DATA_PATH
 
@@ -75,7 +75,7 @@ class AuthService:
 
         raise ValueError("Username not found")
     
-<<<<<<< Updated upstream
+
     def change_username_everywhere(self, current_username: str, new_username: str) -> None:
         """
         Rename a user across:
@@ -173,7 +173,7 @@ class AuthService:
                         writer = csv.DictWriter(f, fieldnames=fieldnames)
                         writer.writeheader()
                         writer.writerows(rows)
-=======
+
     def update_bio(self, username: str, bio: str) -> Dict[str, Any]:
         """
         Update the bio field for an existing user in users.json.
@@ -211,4 +211,3 @@ class AuthService:
 
         # If we didn't find the user
         raise ValueError("User not found")
->>>>>>> Stashed changes

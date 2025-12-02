@@ -13,6 +13,8 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
+class ChangeUsernameRequest(BaseModel):
+    newUsername: str
 
 class ChangePasswordRequest(BaseModel):
     username: str
@@ -78,6 +80,30 @@ def update_bio(request: UpdateBioRequest):
             "message": "Bio updated successfully",
             "username": result["username"],
             "bio": result["bio"],
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.post("/change-username")
+def change_username(
+    request: ChangeUsernameRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Change the username of the currently logged-in user everywhere:
+    - users.json
+    - bans.json
+    - reports.json
+    - all review CSVs (User column).
+    """
+    try:
+        auth_service.change_username_everywhere(
+            current_username=current_user["username"],
+            new_username=request.newUsername,
+        )
+        return {
+            "message": "Username updated successfully",
+            "newUsername": request.newUsername,
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
