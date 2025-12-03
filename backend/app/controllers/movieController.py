@@ -3,7 +3,7 @@ from typing import List
 from ..models.models import Movie
 from datetime import datetime
 from ..services.movieService import MovieService
-from app.dependencies import admin_required
+from backend.app.dependencies import admin_required
 from fastapi.responses import JSONResponse
 
 

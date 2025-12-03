@@ -8,7 +8,7 @@ from ..models.models import (
     ReportDecisionRequest,
 )
 from ..services.moderationService import ModerationService
-from app.dependencies import get_current_user, admin_required
+from backend.app.dependencies import get_current_user, admin_required
 
 router = APIRouter(prefix="/moderation", tags=["Moderation"])
 

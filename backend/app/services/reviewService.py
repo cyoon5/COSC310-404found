@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 from fastapi import HTTPException
 from datetime import date
 import sys
-from app.repositories.moviesRepo import load_movie_by_title
+from backend.app.repositories.moviesRepo import load_movie_by_title
 from ..repositories.moviesRepo import recompute_movie_ratings
 from ..repositories.reviewsRepo import load_reviews, save_review, update_review, delete_review, find_review_by_user
 from ..models.models import ReviewCreate
