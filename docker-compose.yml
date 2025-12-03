@@ -1,14 +1,30 @@
-version: "3.8"
+version: "3.9"
 
 services:
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
+    container_name: cosc310-backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./data:/usr/src/app/data:rw
     environment:
-      - PYTHONUNBUFFERED=1
-    restart: unless-stopped
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:-dev-secret}
+      JWT_ALGORITHM: "HS256"
+      IMDB_ROOT: /app/../data/imdb
+      WATCHLIST_ALLOW_UNKNOWN: "0"
+    volumes:
+      - ./data:/app/../data:ro
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cosc310-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE: "http://localhost:8000"
+      NEXT_PUBLIC_TMDB_API_KEY: ${NEXT_PUBLIC_TMDB_API_KEY}
+    depends_on:
+      - backend

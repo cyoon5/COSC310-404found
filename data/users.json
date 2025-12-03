@@ -1,6 +1,6 @@
 [
   {
-    "userName": "abc",
+    "userName": "newuser",
     "passwordHash": "$2b$12$IiqTF84yUgOcycOrZarNvunvd2wyaQrvN4Gw/6t5VnWM8q3UIURNG",
     "role": "user",
     "penalties": 0,
@@ -18,7 +18,7 @@
   },
   {
     "userName": "testuser",
-    "passwordHash": "$2b$12$Fu/Eg3sKMEd8KOlKVDcXiO2zyw0mulaLbnp.ftpxpaDFa3FgkpMKC",
+    "passwordHash": "$2b$12$PfMiaTVjpW41Oh2Je9SiTedslZ4mHLGZd.dOcLpZiNy1knsHI9G7m",
     "role": "user",
     "penalties": 1,
     "watchlist": [
@@ -26,7 +26,8 @@
       "Forrest Gump",
       "TestMovie1"
     ],
-    "banExpiresAt": 1764816189
+    "banExpiresAt": 1764816189,
+    "bio": "TestBio"
   },
   {
     "userName": "testuser2",

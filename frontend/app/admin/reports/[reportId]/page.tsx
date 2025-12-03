@@ -6,7 +6,8 @@ import { decideReport, getAllReports } from "@/lib/api/moderation";
 import { Report } from "@/lib/types";
 
 export default function AdminHandleReportPage() {
-  const { reportId } = useParams();
+  const params = useParams() as { reportId: string };
+  const reportId = params.reportId;
   const router = useRouter();
 
   const [report, setReport] = useState<Report | null>(null);

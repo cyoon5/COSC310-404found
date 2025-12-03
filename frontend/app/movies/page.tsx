@@ -2,6 +2,7 @@
 
 import { useEffect, useState, FormEvent } from "react";
 import {
+  deleteMovie,
   getAllMovies,
   getFilteredMovies,
   MovieFilterParams,
@@ -210,6 +211,39 @@ useEffect(() => {
           <strong>Duration:</strong> {movie.duration} minutes
         </p>
       )}
+      {session?.role === "admin" && (
+  <div style={{ marginBottom: "1rem" }}>
+    <button
+      className="button primary"
+      onClick={() => {
+        window.location.href = `/admin/movies/${encodeURIComponent(
+          movie.title
+        )}/edit`;
+      }}
+    >
+       Edit Movie
+    </button>
+
+    <button
+      className="button danger"
+      style={{ marginLeft: "0.5rem" }}
+      onClick={async () => {
+        if (!confirm(`Delete movie "${movie.title}"?`)) return;
+
+        try {
+          await deleteMovie(movie.title);
+          alert("Movie deleted.");
+          window.location.reload();
+        } catch (err: any) {
+          alert(err.message || "Delete failed.");
+        }
+      }}
+    >
+       Delete Movie
+    </button>
+  </div>
+)}
+
 
       <button className="button" onClick={handleAddToWatchlistClick}>
         Add to watchlist
@@ -490,9 +524,14 @@ useEffect(() => {
 }
 
 export default function MoviesPage() {
+  const [clientReady, setClientReady] = useState(false);
+
+  const session = getSession(); // safe to keep, but only *used* after clientReady === true
+
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [filters, setFilters] = useState<MovieFilterParams>({
     title: "",
     genre: "",
@@ -504,6 +543,12 @@ export default function MoviesPage() {
     sort_by: undefined,
     descending: false,
   });
+
+  // Fix hydration: ensure client and server render identical markup
+  useEffect(() => {
+    setClientReady(true);
+  }, []);
+
 
   useEffect(() => {
     (async () => {
@@ -533,9 +578,21 @@ export default function MoviesPage() {
     }
   }
 
+  if (!clientReady) return <p>Loading...</p>;
+
   return (
     <div>
       <h1>Movies</h1>
+        {session?.role === "admin" && (
+    <button
+      className="button primary"
+      style={{ marginBottom: "1rem" }}
+      onClick={() => (window.location.href = "/admin/movies/create")}
+    >
+       Create Movie
+    </button>
+    )}
+
 
       <form onSubmit={handleFilter} className="filter-form">
         <label>Title contains</label>

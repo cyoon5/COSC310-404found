@@ -216,7 +216,7 @@ class AuthService:
 
         # 4) All movie review CSVs (data/imdb/*.csv)
         if REVIEWS_DATA_PATH.exists():
-            for csv_path in REVIEWS_DATA_PATH.glob("*.csv"):
+            for csv_path in REVIEWS_DATA_PATH.glob("*/*.csv"):
                 with csv_path.open("r", newline="", encoding="utf-8") as f:
                     reader = csv.DictReader(f)
                     rows = list(reader)

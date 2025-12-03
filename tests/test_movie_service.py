@@ -259,7 +259,7 @@ def test_integration_delete_movie(monkeypatch):
 
 # Test create movie blocked for non-admin
 def test_create_movie_non_admin_blocked(monkeypatch):
-    non_admin_username = "abc"
+    non_admin_username = "testuser"
     new_movie = {
         "title": "RandomMovie",
         "movieIMDbRating": 8.3,
