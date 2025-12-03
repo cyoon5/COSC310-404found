@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, Header
-from backend.app.repositories.usersRepo import find_user_by_username
-from backend.app.repositories.adminRepo import find_admin_by_name
+from app.repositories.usersRepo import find_user_by_username
+from app.repositories.adminRepo import find_admin_by_name
 import time
 
 def get_current_user(x_username: str = Header(...)):

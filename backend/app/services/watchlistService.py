@@ -4,7 +4,7 @@ import os
 from typing import List
 from pathlib import Path
 
-from backend.app.repositories import usersRepo
+from app.repositories import usersRepo
 
 # Resolve project root and absolute IMDB_ROOT
 PROJECT_ROOT = Path(__file__).resolve().parents[3]  # .../COSC310-Project

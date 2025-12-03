@@ -103,5 +103,68 @@
     "handledByAdmin": "admin1",
     "handledAt": "2025-12-02T21:28:48.550164",
     "banDurationSeconds": null
+  },
+  {
+    "reportId": 6,
+    "review": {
+      "movieTitle": "TestMovie1",
+      "user": "abc",
+      "rating": 1.0,
+      "usefulVotes": 0,
+      "totalVotes": 0,
+      "title": "Changed my mind",
+      "body": "worst movie i have ever seen in my life",
+      "reportCount": 4
+    },
+    "reportedBy": "testuser",
+    "status": "confirmed",
+    "dateReported": "2025-12-03T00:21:56.784701",
+    "reasonType": "abusive",
+    "reason": null,
+    "handledByAdmin": "admin1",
+    "handledAt": "2025-12-03T00:23:33.752407",
+    "banDurationSeconds": null
+  },
+  {
+    "reportId": 7,
+    "review": {
+      "movieTitle": "TestMovie1",
+      "user": "abc",
+      "rating": 1.0,
+      "usefulVotes": 0,
+      "totalVotes": 0,
+      "title": "Changed my mind",
+      "body": "worst movie i have ever seen in my life",
+      "reportCount": 5
+    },
+    "reportedBy": "testuser",
+    "status": "pending",
+    "dateReported": "2025-12-03T00:22:03.944925",
+    "reasonType": "spam",
+    "reason": null,
+    "handledByAdmin": null,
+    "handledAt": null,
+    "banDurationSeconds": null
+  },
+  {
+    "reportId": 8,
+    "review": {
+      "movieTitle": "TestMovie1",
+      "user": "abc",
+      "rating": 1.0,
+      "usefulVotes": 0,
+      "totalVotes": 0,
+      "title": "Changed my mind",
+      "body": "worst movie i have ever seen in my life",
+      "reportCount": 6
+    },
+    "reportedBy": "testuser",
+    "status": "pending",
+    "dateReported": "2025-12-03T00:22:17.866741",
+    "reasonType": "other",
+    "reason": "test",
+    "handledByAdmin": null,
+    "handledAt": null,
+    "banDurationSeconds": null
   }
 ]

@@ -18,7 +18,7 @@
   },
   {
     "userName": "testuser",
-    "passwordHash": "$2b$12$dMX2FsLeaWR.bUXO.ifCfu1fcVXqP9kEaE8Lif3VLuisg9/RsKa7K",
+    "passwordHash": "$2b$12$PfMiaTVjpW41Oh2Je9SiTedslZ4mHLGZd.dOcLpZiNy1knsHI9G7m",
     "role": "user",
     "penalties": 1,
     "watchlist": [
